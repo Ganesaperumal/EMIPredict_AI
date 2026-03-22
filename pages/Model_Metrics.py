@@ -31,17 +31,37 @@ TRACKING_URI = f"file://{PROJECT_ROOT}/mlruns"
 
 @st.cache_data
 def get_runs(experiment_name):
-    client = MlflowClient(tracking_uri=TRACKING_URI)
-    exp = client.get_experiment_by_name(experiment_name)
-    if not exp:
+    static_stats_path = PROJECT_ROOT / 'data/mlflow_stats.parquet'
+    
+    # Try loading from static export first (useful for Cloud deployment)
+    if static_stats_path.exists():
+        df_static = pd.read_parquet(static_stats_path)
+        df_filtered = df_static[df_static['experiment_name'] == experiment_name]
+        if not df_filtered.empty:
+            # Format to match the original output (Run column + metrics)
+            df_filtered = df_filtered.rename(columns={'model_name': 'Run'})
+            # Drop MLflow specific columns that aren't metrics
+            cols_to_drop = ['experiment_name', 'run_id', 'start_time']
+            return df_filtered.drop(columns=[c for c in cols_to_drop if c in df_filtered.columns])
+
+    # Fallback to local MLflow (if mlruns directory exists)
+    if not (PROJECT_ROOT / "mlruns").exists():
         return pd.DataFrame()
-    runs = client.search_runs(experiment_ids=[exp.experiment_id])
-    rows = []
-    for r in runs:
-        row = {'Run': r.data.params.get('model', r.info.run_id[:8])}
-        row.update(r.data.metrics)
-        rows.append(row)
-    return pd.DataFrame(rows)
+        
+    try:
+        client = MlflowClient(tracking_uri=TRACKING_URI)
+        exp = client.get_experiment_by_name(experiment_name)
+        if not exp:
+            return pd.DataFrame()
+        runs = client.search_runs(experiment_ids=[exp.experiment_id])
+        rows = []
+        for r in runs:
+            row = {'Run': r.data.params.get('model', r.info.run_id[:8])}
+            row.update(r.data.metrics)
+            rows.append(row)
+        return pd.DataFrame(rows)
+    except Exception:
+        return pd.DataFrame()
 
 # ── Styling Helpers ──────────────────────────────────────────────────
 def highlight_clf(s):
