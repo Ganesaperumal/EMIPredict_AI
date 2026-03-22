@@ -133,7 +133,8 @@ div[data-testid="stSidebarNavContents"] {
     align-items: center !important;
     justify-content: center !important; /* Centered */
     gap: 0.4rem !important;
-    margin-top: 0.6rem !important;
+    margin: 0.6rem auto 0 auto !important;
+    width: fit-content !important;
 }
 .tip-card {
     background: var(--tip-bg);
