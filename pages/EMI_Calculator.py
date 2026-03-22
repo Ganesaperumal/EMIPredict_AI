@@ -1,5 +1,5 @@
 import streamlit as st
-import pickle
+import joblib
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -20,136 +20,229 @@ PROJECT_ROOT = Path(__file__).parent.parent
 
 @st.cache_resource
 def load_models():
-    clf   = pickle.load(open(PROJECT_ROOT / 'models/best_classifier.pkl', 'rb'))
-    reg   = pickle.load(open(PROJECT_ROOT / 'models/best_regressor.pkl', 'rb'))
-    scaler   = pickle.load(open(PROJECT_ROOT / 'models/scaler.pkl', 'rb'))
-    encoders = pickle.load(open(PROJECT_ROOT / 'models/encoders.pkl', 'rb'))
+    clf   = joblib.load(PROJECT_ROOT / 'models/best_classifier.pkl')
+    reg   = joblib.load(PROJECT_ROOT / 'models/best_regressor.pkl')
+    scaler   = joblib.load(PROJECT_ROOT / 'models/scaler.pkl')
+    encoders = joblib.load(PROJECT_ROOT / 'models/encoders.pkl')
     return clf, reg, scaler, encoders
 
 clf, reg, scaler, encoders = load_models()
 
+# ── Wizard Logic ──────────────────────────────────────────────────────
+if 'calc_step' not in st.session_state:
+    st.session_state.calc_step = 1
+if 'calc_data' not in st.session_state:
+    st.session_state.calc_data = {}
+
+def next_step(): st.session_state.calc_step += 1
+def prev_step(): st.session_state.calc_step -= 1
+def reset_wizard():
+    st.session_state.calc_step = 1
+    st.session_state.calc_data = {}
+
 st.markdown("""
-<div class="glass-header" style="--header-bg: linear-gradient(135deg, rgba(209, 250, 229, 0.7), rgba(110, 231, 183, 0.7)); --header-border: rgba(255, 255, 255, 0.5);">
-    <h1>🧮 EMI Eligibility Prediction</h1>
-    <p>Fill in the applicant details to get real-time predictions</p>
+<div class="glass-header" style="--header-bg: linear-gradient(135deg, #e0f2fe, #bae6fd); --header-border: rgba(255, 255, 255, 0.5);">
+    <h1>🧮 EMI Smart Predictor</h1>
+    <p>Complete the 4-step assessment for your instant eligibility report</p>
 </div>
 """, unsafe_allow_html=True)
 
+# ── Progress Tracker ──────────────────────────────────────────────────
+steps = [
+    ("👤", "Personal"),
+    ("💼", "Employment"),
+    ("💰", "Financial"),
+    ("🎯", "Results")
+]
 
+cols = st.columns(len(steps))
+for i, (icon, label) in enumerate(steps):
+    step_num = i + 1
+    is_active = st.session_state.calc_step == step_num
+    is_done = st.session_state.calc_step > step_num
+    
+    status_class = "step-active" if is_active else ("step-done" if is_done else "")
+    cols[i].markdown(f"""
+        <div class="step-item {status_class}">
+            <div class="step-dot">{icon if not is_done else '✓'}</div>
+            <div class="step-label">{label}</div>
+        </div>
+    """, unsafe_allow_html=True)
 
+st.markdown("<br>", unsafe_allow_html=True)
 
+# ── STEP 1: Personal Info ─────────────────────────────────────────────
+if st.session_state.calc_step == 1:
+    with st.form("step1"):
+        st.subheader("👤 Personal Background")
+        c1, c2 = st.columns(2)
+        age = c1.slider("Age", 25, 60, st.session_state.calc_data.get('age', 35))
+        gender = c2.selectbox("Gender", ["Male", "Female"], index=0 if st.session_state.calc_data.get('gender') == 'Male' else (1 if st.session_state.calc_data.get('gender') == 'Female' else 0))
+        marital = c1.selectbox("Marital Status", ["Single", "Married"], index=0 if st.session_state.calc_data.get('marital_status') == 'Single' else (1 if st.session_state.calc_data.get('marital_status') == 'Married' else 0))
+        education = c2.selectbox("Education", ["High School", "Graduate", "Post Graduate", "Professional"])
+        house = c1.selectbox("House Type", ["Rented", "Own", "Family"])
+        family = c2.slider("Family Size", 1, 10, st.session_state.calc_data.get('family_size', 4))
+        deps = c1.slider("Dependents", 0, 6, st.session_state.calc_data.get('dependents', 1))
+        
+        if st.form_submit_button("Continue to Employment 💼", use_container_width=True):
+            st.session_state.calc_data.update({
+                'age': age, 'gender': gender, 'marital_status': marital, 
+                'education': education, 'house_type': house, 
+                'family_size': family, 'dependents': deps
+            })
+            next_step()
+            st.rerun()
 
-with st.form("prediction_form"):
-    st.subheader("👤 Personal Details")
-    c1, c2, c3 = st.columns(3)
-    age            = c1.slider("Age", 25, 60, 35)
-    gender         = c2.selectbox("Gender", ["Male", "Female"])
-    marital_status = c3.selectbox("Marital Status", ["Single", "Married"])
-    education      = c1.selectbox("Education", ["High School", "Graduate", "Post Graduate", "Professional"])
-    employment_type= c2.selectbox("Employment Type", ["Private", "Government", "Self-employed"])
-    company_type   = c3.selectbox("Company Type", ["Large", "Medium", "Small", "Startup"])
-    house_type     = c1.selectbox("House Type", ["Rented", "Own", "Family"])
-    family_size    = c2.slider("Family Size", 1, 10, 4)
-    dependents     = c3.slider("Dependents", 0, 6, 1)
-    years_of_employment = c1.slider("Years of Employment", 0, 35, 5)
+# ── STEP 2: Employment ────────────────────────────────────────────────
+elif st.session_state.calc_step == 2:
+    with st.form("step2"):
+        st.subheader("💼 Employment Details")
+        c1, c2 = st.columns(2)
+        emp_type = c1.selectbox("Employment Type", ["Private", "Government", "Self-employed"])
+        comp_type = c2.selectbox("Company Type", ["Large", "Medium", "Small", "Startup"])
+        exp = c1.slider("Years of Employment", 0, 35, st.session_state.calc_data.get('years_of_employment', 5))
+        salary = c2.number_input("Monthly Salary (₹)", 15000, 200000, st.session_state.calc_data.get('monthly_salary', 50000), step=1000)
+        
+        col_back, col_next = st.columns([1, 2])
+        if col_back.form_submit_button("← Back"):
+            prev_step()
+            st.rerun()
+        if col_next.form_submit_button("Continue to Financials 💰", use_container_width=True):
+            st.session_state.calc_data.update({
+                'employment_type': emp_type, 'company_type': comp_type,
+                'years_of_employment': exp, 'monthly_salary': salary
+            })
+            next_step()
+            st.rerun()
 
-    st.subheader("💰 Financial Details")
-    c4, c5, c6 = st.columns(3)
-    monthly_salary  = c4.number_input("Monthly Salary (₹)", 15000, 200000, 50000, step=1000)
-    bank_balance    = c5.number_input("Bank Balance (₹)", 0, 5000000, 100000, step=10000)
-    emergency_fund  = c6.number_input("Emergency Fund (₹)", 0, 2000000, 50000, step=5000)
-    credit_score    = c4.slider("Credit Score", 300, 850, 650)
-    existing_loans  = c5.selectbox("Existing Loans", ["Yes", "No"])
-    current_emi_amount = c6.number_input("Current EMI (₹)", 0, 100000, 0, step=500)
+# ── STEP 3: Financial & Loan ──────────────────────────────────────────
+elif st.session_state.calc_step == 3:
+    with st.form("step3"):
+        st.subheader("💰 Financial Capacity & Request")
+        c1, c2, c3 = st.columns(3)
+        balance = c1.number_input("Bank Balance (₹)", 0, 5000000, 100000)
+        emergency = c2.number_input("Emergency Fund (₹)", 0, 2000000, 50000)
+        credit = c3.slider("Credit Score", 300, 850, 650)
+        
+        loans = c1.selectbox("Existing Loans", ["Yes", "No"])
+        current_emi = c2.number_input("Current EMI (₹)", 0, 100000, 0)
+        scenario = c3.selectbox("EMI Scenario", ["E-commerce Shopping EMI", "Home Appliances EMI", "Vehicle EMI", "Personal Loan EMI", "Education EMI"])
+        
+        req_amt = c1.number_input("Requested Amount (₹)", 10000, 1500000, 200000)
+        tenure = c2.slider("Tenure (months)", 3, 84, 24)
 
-    st.subheader("🏠 Monthly Expenses")
-    c7, c8, c9 = st.columns(3)
-    monthly_rent       = c7.number_input("Monthly Rent (₹)", 0, 100000, 10000, step=500)
-    school_fees        = c8.number_input("School Fees (₹)", 0, 50000, 0, step=500)
-    college_fees       = c9.number_input("College Fees (₹)", 0, 50000, 0, step=500)
-    travel_expenses    = c7.number_input("Travel Expenses (₹)", 0, 30000, 3000, step=500)
-    groceries_utilities= c8.number_input("Groceries & Utilities (₹)", 0, 50000, 8000, step=500)
-    other_monthly_expenses = c9.number_input("Other Expenses (₹)", 0, 50000, 2000, step=500)
+        st.divider()
+        st.subheader("🏠 Monthly Expenses")
+        e1, e2, e3 = st.columns(3)
+        rent = e1.number_input("Rent (₹)", 0, 100000, 10000)
+        school = e2.number_input("School Fees (₹)", 0, 50000, 0)
+        travel = e3.number_input("Travel (₹)", 0, 30000, 3000)
+        groceries = e1.number_input("Groceries (₹)", 0, 50000, 8000)
+        other = e2.number_input("Other (₹)", 0, 50000, 2000)
+        
+        col_back, col_next = st.columns([1, 2])
+        if col_back.form_submit_button("← Back"):
+            prev_step()
+            st.rerun()
+        if col_next.form_submit_button("🔮 Generate Prediction", use_container_width=True):
+            st.session_state.calc_data.update({
+                'bank_balance': balance, 'emergency_fund': emergency, 'credit_score': credit,
+                'existing_loans': loans, 'current_emi_amount': current_emi, 'emi_scenario': scenario,
+                'requested_amount': req_amt, 'requested_tenure': tenure, 'monthly_rent': rent,
+                'school_fees': school, 'travel_expenses': travel, 'groceries_utilities': groceries,
+                'other_monthly_expenses': other, 'college_fees': 0
+            })
+            next_step()
+            st.rerun()
 
-    st.subheader("📋 Loan Request")
-    c10, c11, c12 = st.columns(3)
-    emi_scenario     = c10.selectbox("EMI Scenario", ["E-commerce Shopping EMI", "Home Appliances EMI", "Vehicle EMI", "Personal Loan EMI", "Education EMI"])
-    requested_amount = c11.number_input("Requested Amount (₹)", 10000, 1500000, 200000, step=10000)
-    requested_tenure = c12.slider("Tenure (months)", 3, 84, 24)
+# ── STEP 4: Results ───────────────────────────────────────────────────
+elif st.session_state.calc_step == 4:
+    data = st.session_state.calc_data
+    # Feature Engineering
+    total_exp = data['monthly_rent'] + data['school_fees'] + data.get('college_fees', 0) + \
+                data['travel_expenses'] + data['groceries_utilities'] + \
+                data['other_monthly_expenses'] + data['current_emi_amount']
+    
+    disposable = data['monthly_salary'] - total_exp
+    emi_to_inc = data['requested_amount'] / (data['monthly_salary'] * data['requested_tenure'] + 1)
+    savings_rat = (data['bank_balance'] + data['emergency_fund']) / (data['monthly_salary'] + 1)
+    debt_burden = data['current_emi_amount'] / (data['monthly_salary'] + 1)
+    family_pres = data['dependents'] / (data['monthly_salary'] / 10000 + 1)
 
-    submitted = st.form_submit_button("🔮 Predict Now", use_container_width=True)
-
-if submitted:
-    # Feature Engineering (must match preprocessing.py)
-    total_exp = monthly_rent + school_fees + college_fees + travel_expenses + groceries_utilities + other_monthly_expenses + current_emi_amount
-    disposable  = monthly_salary - total_exp
-    emi_to_inc  = requested_amount / (monthly_salary * requested_tenure + 1)
-    savings_rat = (bank_balance + emergency_fund) / (monthly_salary + 1)
-    debt_burden = current_emi_amount / (monthly_salary + 1)
-    family_pres = dependents / (monthly_salary / 10000 + 1)
-
-    raw = {
-        'age': age, 'gender': gender, 'marital_status': marital_status,
-        'education': education, 'monthly_salary': monthly_salary,
-        'employment_type': employment_type, 'years_of_employment': years_of_employment,
-        'company_type': company_type, 'house_type': house_type,
-        'monthly_rent': monthly_rent, 'family_size': family_size,
-        'dependents': dependents, 'school_fees': school_fees,
-        'college_fees': college_fees, 'travel_expenses': travel_expenses,
-        'groceries_utilities': groceries_utilities, 'other_monthly_expenses': other_monthly_expenses,
-        'existing_loans': existing_loans, 'current_emi_amount': current_emi_amount,
-        'credit_score': credit_score, 'bank_balance': bank_balance,
-        'emergency_fund': emergency_fund, 'emi_scenario': emi_scenario,
-        'requested_amount': requested_amount, 'requested_tenure': requested_tenure,
+    # Prepare for Prediction
+    raw = data.copy()
+    raw.update({
         'total_monthly_expenses': total_exp, 'disposable_income': disposable,
         'emi_to_income_ratio': emi_to_inc, 'savings_ratio': savings_rat,
         'debt_burden': debt_burden, 'family_pressure': family_pres
-    }
+    })
 
     cat_cols = ['gender', 'marital_status', 'education', 'employment_type',
                 'company_type', 'house_type', 'emi_scenario', 'existing_loans']
     for col in cat_cols:
         try:
             raw[col] = encoders[col].transform([raw[col]])[0]
-        except ValueError:
+        except Exception:
             raw[col] = 0
 
     df_input = pd.DataFrame([raw])
     X_scaled = scaler.transform(df_input)
-
     pred_class = clf.predict(X_scaled)[0]
     pred_proba = clf.predict_proba(X_scaled)[0]
-    pred_emi   = reg.predict(X_scaled)[0]
+    pred_emi = reg.predict(X_scaled)[0]
 
-    class_labels = encoders['emi_eligibility'].classes_
-    label = class_labels[pred_class]
+    label = encoders['emi_eligibility'].classes_[pred_class]
+    
+    # UI Results
+    st.subheader("📊 Assessment Report")
+    r1, r2 = st.columns(2)
+    
+    indicators = {"Eligible": "✅", "High_Risk": "⚠️", "Not_Eligible": "🚨"}
+    colors = {"Eligible": "#dcfce7", "High_Risk": "#fef3c7", "Not_Eligible": "#fee2e2"}
+    text_colors = {"Eligible": "#166534", "High_Risk": "#92400e", "Not_Eligible": "#991b1b"}
+    
+    res_label = label.replace('_', ' ')
+    r1.markdown(f"""
+        <div style="background: {colors[label]}; border-radius: 16px; padding: 2rem; text-align: center; border: 1px solid rgba(0,0,0,0.05);">
+            <div style="font-size: 3rem; margin-bottom: 0.5rem;">{indicators[label]}</div>
+            <div style="font-size: 1.5rem; font-weight: 800; color: {text_colors[label]}">{res_label.upper()}</div>
+            <div style="font-size: 0.9rem; opacity: 0.8; color: {text_colors[label]}">AI Risk Assessment Result</div>
+        </div>
+    """, unsafe_allow_html=True)
 
-    # Store in session state for AI Advisor
-    st.session_state.last_prediction = {
-        'income': monthly_salary,
-        'emis': current_emi_amount,
-        'credit_score': credit_score,
-        'emergency_fund': emergency_fund,
-        'bank_balance': bank_balance,
-        'eligibility': label,
-        'max_emi': pred_emi
-    }
+    r2.markdown(f"""
+        <div style="background: #f0f9ff; border-radius: 16px; padding: 2rem; text-align: center; border: 1px solid rgba(0,0,0,0.05); height: 100%;">
+            <div style="font-size: 0.9rem; font-weight: 700; color: #075985; text-transform: uppercase;">Maximum Safe EMI</div>
+            <div style="font-size: 3.5rem; font-weight: 900; color: #0369a1; margin: 0.5rem 0;">₹{pred_emi:,.0f}</div>
+            <div style="font-size: 0.8rem; color: #0c4a6e;">Recommended monthly capacity</div>
+        </div>
+    """, unsafe_allow_html=True)
 
     st.markdown("---")
-    st.subheader("📊 Prediction Results")
-
-    col_a, col_b = st.columns(2)
-    # Eligibility Indicator Logic
-    indicators = {"Eligible": "✅ ", "High_Risk": "⚠️ ", "Not_Eligible": "🚨 "}
-    display_label = f"{indicators.get(label, '')}{label.replace('_', ' ')}"
-    
-    with col_a:
-        st.metric("EMI Eligibility", display_label)
-
-    with col_b:
-        st.metric("Max Safe EMI", f"₹{pred_emi:,.0f}")
-
-
-    st.write("**Confidence Scores:**")
-    for i, lbl in enumerate(class_labels):
+    st.write("**Confidence Breakdown:**")
+    for i, lbl in enumerate(encoders['emi_eligibility'].classes_):
         st.progress(float(pred_proba[i]), text=f"{lbl}: {pred_proba[i]*100:.1f}%")
+
+    # SAVE TO DATABASE (Phase 2 Feature)
+    if st.button("💾 Save Applicant Record to Management Console"):
+        import os
+        from datetime import datetime
+        db_path = PROJECT_ROOT / 'data/applicant_records.csv'
+        record = {
+            'Date': datetime.now().strftime("%Y-%m-%d %H:%M"),
+            'Income': data['monthly_salary'],
+            'Requested': data['requested_amount'],
+            'Status': label,
+            'Max_EMI': pred_emi
+        }
+        df_rec = pd.DataFrame([record])
+        if not db_path.exists():
+            df_rec.to_csv(db_path, index=False)
+        else:
+            df_rec.to_csv(db_path, mode='a', header=False, index=False)
+        st.toast("✅ Record saved successfully!", icon="🗂️")
+
+    st.divider()
+    if st.button("♻️ Start New Assessment"):
+        reset_wizard()
+        st.rerun()

@@ -11,11 +11,12 @@
 
 ## 🚀 Key Features
 
-- **🧮 Real-time EMI Predictor**: Dual-model architecture for instant eligibility classification and safe loan amount calculation.
+- **🧙‍♂️ 4-Step EMI Wizard**: A guided, intuitive multi-step interface for predictive financial analysis.
+- **🗂️ Applicant Management Console**: A full-featured CRM for tracking, editing, and managing historical applicant records.
 - **📈 Data Insights Dashboard**: Interactive exploratory data analysis (EDA) of over 400,000 financial records across 5 diverse loan scenarios.
 - **🎡 Model Performance Center**: Comprehensive metrics tracking via **MLflow**, featuring experiment comparisons and best-model highlighting.
 - **🤖 AI Financial Advisor**: Personalized, actionable financial guidance based on individual risk profiles and health scores.
-- **💎 Premium Glassmorphism UI**: A modern, responsive interface built with Streamlit for an elite user experience.
+- **💎 Premium Liquid Glass UI**: A modern, Apple-style responsive interface with custom radial gradients and smooth transitions.
 
 ---
 

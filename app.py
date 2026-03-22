@@ -76,22 +76,22 @@ tab1, tab2, tab3, tab4 = st.tabs(["🔧 Core Features", "🤖 AI Power", "📊 A
 with tab1:
     col_a, col_b = st.columns(2)
     with col_a:
-        st.write("### 📱 Smart EMI Calculator")
-        st.write("Calculate EMI eligibility with advanced AI algorithms.")
+        st.write("### 🪄 Step-by-Step Prediction")
+        st.write("Calculate EMI eligibility with our new guided 4-step wizard.")
         st.markdown("""
-        - Real-time eligibility assessment
+        - Simplified 4-step interface
+        - Real-time risk factor analysis
         - Maximum EMI capacity prediction
-        - Risk factor analysis
-        - Multiple loan scenarios
+        - Dynamic validation & feedback
         """)
     with col_b:
-        st.write("### 📊 Visual Analytics")
-        st.write("Comprehensive data visualization and exploratory analysis.")
+        st.write("### 🗂️ Applicant Management")
+        st.write("A full CRM suite to track and manage historical predictions.")
         st.markdown("""
-        - Interactive charts & graphs
-        - Distribution analysis
-        - Correlation heatmaps
-        - Trend identification
+        - Save & review applicant records
+        - Manual status overrides
+        - Historical record directory
+        - Full CRUD operations
         """)
 
 with tab2:
@@ -102,12 +102,12 @@ with tab2:
         st.markdown("""
         - Dual model architecture
         - Classification + Regression
-        - Continuous learning
-        - High accuracy rates
+        - Continuous learning via MLflow
+        - 97.4% High accuracy rates
         """)
     with col_b:
-        st.write("### 💡 Intelligent Recommendations")
-        st.write("Get personalized financial advice based on your profile.")
+        st.write("### 💡 AI Advisor & Health Score")
+        st.write("Get personalized financial health scores and diagnostics.")
         st.markdown("""
         - Custom action plans
         - Risk mitigation strategies
@@ -116,31 +116,31 @@ with tab2:
         """)
 
 with tab3:
-    st.write("### 📈 Advanced Analytics Features")
-    st.write("A focused toolkit for deep exploratory analysis.")
+    st.write("### 📈 Advanced Data Engineering")
+    st.write("A professional toolkit for high-performance financial analysis.")
     col_a, col_b, col_c = st.columns(3)
-    col_a.info("**📦 Dataset Management**\\nUpload, clean, and manage your financial datasets efficiently.")
-    col_b.success("**🏆 Model Performance**\\nTrack accuracy, F1 scores, RMSE, and feature importance metrics.")
-    col_c.warning("**🔍 Deep Insights**\\nExplore correlations, distributions, and financial patterns.")
+    col_a.info("**🎯 Optimized Parquet**\nNative support for Apache Parquet with 90% size reduction.")
+    col_b.success("**🏆 Model Metrics**\nLive MLflow tracking with static cloud fallback.")
+    col_c.warning("**🔍 Deep Insights**\nAdvanced EDA with correlation and distribution mappings.")
 
 with tab4:
-    st.write("### 🛡️ Security & Privacy")
-    st.write("Your financial data is protected with enterprise-grade security measures.")
+    st.write("### 🛡️ Security & Integrity")
+    st.write("Your financial data is protected with local-first security measures.")
     col_a, col_b = st.columns(2)
     with col_a:
-        st.success("✅ Local Processing")
-        st.success("✅ No Cloud Storage")
+        st.success("✅ Local-First Processing")
+        st.success("✅ Zero Cloud Storage")
     with col_b:
-        st.success("✅ Encrypted Models")
-        st.success("✅ Privacy First")
+        st.success("✅ Privacy Preserved")
+        st.success("✅ Secure Model Hosting")
 
 # ── Quick Start Guide ────────────────────────────────────────────────
-with st.expander("🚀 Quick Start Guide — How to Use This Platform"):
+with st.expander("🚀 Quick Start Guide — How to Use Phase 2"):
     st.markdown("""
-    1. **🧮 EMI Predictor** — Enter applicant details and get instant EMI eligibility + max EMI amount
-    2. **📈 Data Insights** — Explore the 400K dataset with distributions, correlations, and EDA visuals
-    3. **🎡 Model Metrics** — Compare all 6 trained models (3 classifiers + 3 regressors) via MLflow
-    4. **🤖 AI Advisor** — Get personalized financial health advice, tips, and best practices
+    1. **🧙‍♂️ EMI Wizard** — Navigate through the 4-step flow to get your eligibility score.
+    2. **💾 Save Record** — Click 'Save' at the end of the wizard to track the results.
+    3. **🗂️ Management** — Head to the console to view, edit, or purge saved records.
+    4. **📊 Insights & Metrics** — Explore the core dataset and model performance stats.
     """)
 
 # ── System Status ─────────────────────────────────────────────────────

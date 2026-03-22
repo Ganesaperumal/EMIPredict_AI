@@ -41,7 +41,7 @@ def get_runs(experiment_name):
             # Format to match the original output (Run column + metrics)
             df_filtered = df_filtered.rename(columns={'model_name': 'Run'})
             # Drop MLflow specific columns that aren't metrics
-            cols_to_drop = ['experiment_name', 'run_id', 'start_time']
+            cols_to_drop = ['experiment_name', 'run_id', 'start_time', 'model']
             return df_filtered.drop(columns=[c for c in cols_to_drop if c in df_filtered.columns])
 
     # Fallback to local MLflow (if mlruns directory exists)
@@ -82,9 +82,10 @@ clf_df = get_runs("EMI_Classification")
 
 if not clf_df.empty:
     clf_df = clf_df.sort_values('f1_weighted', ascending=False).reset_index(drop=True)
+    clf_df = clf_df.dropna(axis=1, how='all') # Drop 'None' columns (like regression metrics)
     
     # Apply Green Bold to Highest Values
-    styled_clf = clf_df.style.apply(highlight_clf, subset=['f1_weighted', 'accuracy'])
+    styled_clf = clf_df.style.apply(highlight_clf, subset=[c for c in ['f1_weighted', 'accuracy'] if c in clf_df.columns])
     st.dataframe(styled_clf, use_container_width=True)
 
 
@@ -115,10 +116,11 @@ reg_df = get_runs("EMI_Regression")
 
 if not reg_df.empty:
     reg_df = reg_df.sort_values('rmse').reset_index(drop=True)
+    reg_df = reg_df.dropna(axis=1, how='all') # Drop 'None' columns (like classification metrics)
     
     # Apply Blue Bold to Lowest RMSE and Highest R2
-    styled_reg = reg_df.style.apply(highlight_reg_min, subset=['rmse'])\
-                             .apply(highlight_reg_max, subset=['r2'])
+    styled_reg = reg_df.style.apply(highlight_reg_min, subset=[c for c in ['rmse'] if c in reg_df.columns])\
+                             .apply(highlight_reg_max, subset=[c for c in ['r2'] if c in reg_df.columns])
     st.dataframe(styled_reg, use_container_width=True)
 
 

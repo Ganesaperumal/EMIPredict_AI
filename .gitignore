@@ -2,6 +2,7 @@
 data/raw/
 data/original/
 data/cleaned/*.csv
+data/applicant_records.csv
 
 # Python cache
 __pycache__/

@@ -7,68 +7,105 @@ div[data-testid="stSidebarNavContents"] {
     display: none !important;
 }
 
-/* Page background image with white overlay for readability */
+/* Main App Container - Apple-style subtle radial overlay */
 [data-testid="stAppViewContainer"] {
-    background: linear-gradient(rgba(255, 255, 255, 1), rgba(255, 255, 255, 1)), 
-                url("https://images.pexels.com/photos/53594/blue-clouds-day-fluffy-53594.jpeg");
-    background-size: cover;
-    background-position: center;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    background-image: radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.05) 0, transparent 50%), 
+                      radial-gradient(at 50% 0%, rgba(168, 85, 247, 0.05) 0, transparent 50%), 
+                      radial-gradient(at 100% 0%, rgba(14, 165, 233, 0.05) 0, transparent 50%);
     background-attachment: fixed;
 }
 
 [data-testid="stHeader"] {
-    background-color: rgba(255, 255, 255, 0.0);
+    background-color: transparent;
 }
 
+/* Glass Header - More "Liquid" with higher blur */
 .glass-header {
     background: var(--header-bg);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
+    backdrop-filter: blur(25px) saturate(180%);
+    -webkit-backdrop-filter: blur(25px) saturate(180%);
     border: 1px solid var(--header-border);
-    border-radius: 20px;
-    padding: 1.2rem 2rem;
+    border-radius: 24px;
+    padding: 1.5rem 2.5rem;
     text-align: center;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-    width: 100%;
-}
-.glass-header h1 {
-    font-size: 2.2rem !important;
-    font-weight: 850 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    color: #0f172a !important;
-    letter-spacing: -0.02em !important;
-    line-height: 1.2 !important;
-}
-.glass-header p {
-    font-size: 1.05rem !important;
-    margin: 0.3rem 0 0 0 !important;
-    color: #475569 !important;
-    font-weight: 600 !important;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.1);
 }
 
+.glass-header h1 {
+    font-size: 2.5rem !important;
+    font-weight: 850 !important;
+    color: #1e293b !important;
+    letter-spacing: -0.03em !important;
+}
+
+/* Metric Cards - Enhanced with Hover Transforms */
 .metric-card-glass {
     background: var(--card-bg);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--card-border);
-    border-radius: 20px;
-    padding: 1rem;
+    border-radius: 22px;
+    padding: 1.25rem;
     text-align: center;
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
+}
+
+.metric-card-glass:hover {
+    transform: translateY(-8px) scale(1.03);
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.15);
+}
+
+/* Wizard Step Tracker Styles */
+.step-container {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
+    margin-bottom: 2.5rem;
+    padding: 0 1rem;
+}
+.step-item {
+    text-align: center;
+    flex: 1;
+    position: relative;
+}
+.step-dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin: 0 auto 8px;
+    display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 130px;
+    font-weight: 700;
+    transition: all 0.3s ease;
 }
-.metric-card-glass:hover {
-    transform: translateY(-5px) scale(1.02);
-    box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.2);
-    border-color: rgba(255, 255, 255, 0.8);
+.step-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #64748b;
 }
+.step-active .step-dot {
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe); /* Lighter Blue */
+    color: #1e40af;
+    box-shadow: 0 0 15px rgba(191, 219, 254, 0.5);
+    border: 2px solid #60a5fa;
+}
+.step-active .step-label { color: #1e40af; font-weight: 700; }
+.step-done .step-dot { background: #10b981; color: white; }
+.step-done .step-label { color: #10b981; }
+
+/* Management Content Cards */
+.mgmt-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: all 0.2s ease;
+}
+.mgmt-card:hover { border-color: #6366f1; box-shadow: 0 4px 12px rgba(99,102,241,0.1); }
 .metric-label-glass {
     font-size: 0.8rem !important;
     font-weight: 750 !important;
@@ -88,14 +125,15 @@ div[data-testid="stSidebarNavContents"] {
 .metric-delta-glass {
     font-size: 0.85rem !important;
     font-weight: 700 !important;
-    padding: 0.2rem 0.6rem !important;
+    padding: 0.2rem 0.8rem !important;
     border-radius: 100px !important;
     background: rgba(16, 185, 129, 0.1) !important;
     color: #10b981 !important;
     display: flex !important;
     align-items: center !important;
-    gap: 0.2rem !important;
-    margin-top: 0.4rem !important;
+    justify-content: center !important; /* Centered */
+    gap: 0.4rem !important;
+    margin-top: 0.6rem !important;
 }
 .tip-card {
     background: var(--tip-bg);
