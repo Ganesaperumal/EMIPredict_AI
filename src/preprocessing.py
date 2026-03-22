@@ -10,8 +10,8 @@ current_file = Path(__file__).resolve()
 project_root = current_file.parent.parent
 
 
-def load_and_engineer(path=os.path.join(project_root, "data/cleaned/cleaned_emi_prediction_dataset.csv")):
-    df = pd.read_csv(path)
+def load_and_engineer(path=os.path.join(project_root, "data/cleaned/cleaned_emi_prediction_dataset.parquet")):
+    df = pd.read_parquet(path)
 
     # ── Feature Engineering ──────────────────────────────────────────
     # 1. Total monthly expenses

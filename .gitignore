@@ -1,6 +1,7 @@
 # Data - raw files too large for GitHub
 data/raw/
 data/original/
+data/cleaned/*.csv
 
 # Python cache
 __pycache__/

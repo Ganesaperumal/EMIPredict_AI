@@ -27,11 +27,11 @@ st.markdown("""
 
 
 PROJECT_ROOT = Path(__file__).parent.parent
-DATA_PATH = PROJECT_ROOT / 'data/cleaned/cleaned_emi_prediction_dataset.csv'
+DATA_PATH = PROJECT_ROOT / 'data/cleaned/cleaned_emi_prediction_dataset.parquet'
 
 @st.cache_data
 def load_data():
-    return pd.read_csv(DATA_PATH)
+    return pd.read_parquet(DATA_PATH)
 
 df = load_data()
 
