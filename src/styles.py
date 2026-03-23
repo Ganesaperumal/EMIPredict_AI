@@ -11,6 +11,10 @@ div[data-testid="stSidebarNavContents"] {
 header[data-testid="stHeader"] {
     display: none !important;
 }
+.block-container {
+    padding-top: 1rem !important;
+    padding-bottom: 3rem !important;
+}
 [data-testid="stStatusWidget"] {
     display: none !important;
 }
