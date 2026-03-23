@@ -8,11 +8,11 @@ textColor="#1e293b"
 [server]
 headless = false
 runOnSave = true
-toolbarMode = "hidden"
+toolbarMode = "auto"
 
 [client]
 showErrorDetails = false
-toolbarMode = "hidden"
+toolbarMode = "auto"
 
 [runner]
 magic = false
