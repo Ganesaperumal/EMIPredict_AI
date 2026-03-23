@@ -32,3 +32,4 @@ mlflow.db
 # IDE
 .vscode/
 .idea/
+run.sh
