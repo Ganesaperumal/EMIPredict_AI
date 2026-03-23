@@ -168,6 +168,25 @@ div[data-testid="stSidebarNavContents"] {
     margin-bottom: 0.5rem;
 }
 
+.feature-card-glass {
+    background: var(--card-bg);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid var(--card-border);
+    border-radius: 18px;
+    padding: 1.25rem;
+    min-height: 110px; /* Force symmetry */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    transition: all 0.3s ease;
+    margin-bottom: 1rem;
+}
+.feature-card-glass:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.05);
+}
+
 </style>
 
 

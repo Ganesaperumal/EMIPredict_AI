@@ -119,9 +119,26 @@ with tab3:
     st.write("### 📈 Advanced Data Engineering")
     st.write("A professional toolkit for high-performance financial analysis.")
     col_a, col_b, col_c = st.columns(3)
-    col_a.info("**🎯 Optimized Parquet**\nNative support for Apache Parquet with 90% size reduction.")
-    col_b.success("**🏆 Model Metrics**\nLive MLflow tracking with static cloud fallback.")
-    col_c.warning("**🔍 Deep Insights**\nAdvanced EDA with correlation and distribution mappings.")
+    col_a.markdown("""
+    <div class="feature-card-glass" style="--card-bg: rgba(239, 246, 255, 0.6); --card-border: rgba(191, 219, 254, 0.5); color: #1e40af;">
+        <strong>🎯 Optimized Parquet</strong><br>
+        <span style="font-size: 0.9rem;">Native support for Apache Parquet with 90% size reduction.</span>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    col_b.markdown("""
+    <div class="feature-card-glass" style="--card-bg: rgba(240, 253, 244, 0.6); --card-border: rgba(187, 247, 208, 0.5); color: #166534;">
+        <strong>🏆 Model Metrics</strong><br>
+        <span style="font-size: 0.9rem;">Live MLflow tracking with static cloud fallback.</span>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    col_c.markdown("""
+    <div class="feature-card-glass" style="--card-bg: rgba(254, 252, 232, 0.6); --card-border: rgba(254, 240, 138, 0.5); color: #854d0e;">
+        <strong>🔍 Deep Insights</strong><br>
+        <span style="font-size: 0.9rem;">Advanced EDA with correlation and distribution mappings.</span>
+    </div>
+    """, unsafe_allow_html=True)
 
 with tab4:
     st.write("### 🛡️ Security & Integrity")
