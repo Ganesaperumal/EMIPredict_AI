@@ -10,8 +10,47 @@ current_file = Path(__file__).resolve()
 project_root = current_file.parent.parent
 
 
-def load_and_engineer(path=os.path.join(project_root, "data/cleaned/cleaned_emi_prediction_dataset.parquet")):
-    df = pd.read_parquet(path)
+def clean_data(df):
+    # 1. Age: Handle mixed formats like 38.0.0
+    df['age'] = pd.to_numeric(df['age'].astype(str).str.split('.').str[0], errors='coerce')
+    df['age'] = df['age'].fillna(df['age'].median())
+    
+    # 2. Gender: Standardize M/F/Male/Female
+    df['gender'] = df['gender'].str[0].str.upper().map({'M': 'Male', 'F': 'Female'})
+    df['gender'] = df['gender'].fillna('Male')
+    
+    # 3. Education: Impute with mode
+    if 'education' in df.columns:
+        df['education'] = df['education'].fillna(df['education'].mode()[0])
+    
+    # 4. Monthly Salary: Handle mixed numeric formats
+    df['monthly_salary'] = pd.to_numeric(df['monthly_salary'].astype(str).str.split('.').str[0], errors='coerce')
+    df['monthly_salary'] = df['monthly_salary'].fillna(df['monthly_salary'].median())
+    
+    # 5. Monthly Rent: Smart imputation (Median for Rented, 0 for others)
+    rent_median = df[df['house_type'] == 'Rented']['monthly_rent'].median()
+    df.loc[(df['house_type'] == 'Rented') & (df['monthly_rent'].isna()), 'monthly_rent'] = rent_median
+    df['monthly_rent'] = df['monthly_rent'].fillna(0)
+    
+    # 6. Bank Balance: Numeric cleaning
+    df['bank_balance'] = pd.to_numeric(df['bank_balance'].astype(str).str.split('.').str[0], errors='coerce')
+    df['bank_balance'] = df['bank_balance'].fillna(df['bank_balance'].median())
+    
+    # 7. Credit Score & Emergency Fund
+    df['credit_score'] = df['credit_score'].fillna(df['credit_score'].median())
+    df['emergency_fund'] = df['emergency_fund'].fillna(0)
+    
+    return df
+
+
+def load_and_engineer(path=os.path.join(project_root, "data/raw/emi_prediction_dataset.csv")):
+    if path.endswith('.csv'):
+        df = pd.read_csv(path, low_memory=False)
+    else:
+        df = pd.read_parquet(path)
+
+    # ── Advanced Cleaning ─────────────────────────────────────────────
+    df = clean_data(df)
 
     # ── Feature Engineering ──────────────────────────────────────────
     # 1. Total monthly expenses
@@ -55,6 +94,12 @@ def load_and_engineer(path=os.path.join(project_root, "data/cleaned/cleaned_emi_
     df[target_clf] = le_target.fit_transform(df[target_clf].astype(str))
     encoders['emi_eligibility'] = le_target
     print("Target classes:", le_target.classes_)
+
+    # ── Save production copy for App ───────────────────────────────
+    prod_path = project_root / 'data/cleaned/cleaned_emi_prediction_dataset.parquet'
+    prod_path.parent.mkdir(exist_ok=True)
+    df.to_parquet(prod_path, index=False)
+    print(f"Production dataset refreshed at {prod_path}")
 
     # ── Split features ───────────────────────────────────────────────
     drop_cols = [target_clf, target_reg]
