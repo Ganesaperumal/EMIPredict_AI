@@ -35,6 +35,12 @@ def load_data():
 
 df = load_data()
 
+# ── Map Categorical Labels (Previously Encoded) ──────────────
+# 0: Eligible, 1: High_Risk, 2: Not_Eligible (Alphabetical Order)
+label_map = {0: 'Eligible', 1: 'High Risk', 2: 'Not Eligible'}
+if df['emi_eligibility'].dtype != 'object':
+    df['emi_eligibility'] = df['emi_eligibility'].map(label_map)
+
 # ── Overview ─────────────────────────────────────────────────────────
 st.subheader("📋 Dataset Overview")
 c1, c2, c3, c4 = st.columns(4)
@@ -90,7 +96,7 @@ with col1:
     fig1 = px.pie(counts, values='Count', names='Eligibility', hole=0.4,
                   title='EMI Eligibility Breakdown',
                   color='Eligibility',
-                  color_discrete_map={'Eligible': '#f39c12', 'Not_Eligible': '#2ecc71', 'High_Risk': '#e74c3c'})
+                  color_discrete_map={'Eligible': '#2ecc71', 'Not_Eligible': '#e74c3c', 'High Risk': '#f39c12'})
     fig1.update_traces(textposition='inside', textinfo='percent+label')
     st.plotly_chart(fig1, use_container_width=True)
 
@@ -105,7 +111,7 @@ st.subheader("💡 Income vs Requested Amount by Eligibility")
 fig3 = px.scatter(df_sample, x='monthly_salary', y='requested_amount', 
                   color='emi_eligibility', opacity=0.6,
                   title="How Monthly Salary impacts Requested Loan Amount",
-                  color_discrete_map={'Eligible': '#f39c12', 'Not_Eligible': '#2ecc71', 'High_Risk': '#e74c3c'},
+                  color_discrete_map={'Eligible': '#2ecc71', 'Not Eligible': '#e74c3c', 'High Risk': '#f39c12'},
                   labels={'monthly_salary': 'Monthly Salary (₹)', 'requested_amount': 'Requested Amount (₹)'})
 st.plotly_chart(fig3, use_container_width=True)
 
@@ -146,7 +152,7 @@ radar_melt['Metric'] = radar_melt['Metric'].str.replace('_', ' ').str.title()
 
 fig6 = px.line_polar(radar_melt, r='Normalized Score', theta='Metric', color='emi_eligibility', line_close=True,
                      title='Average Traits: Eligible vs High Risk vs Not Eligible',
-                     color_discrete_map={'Eligible': '#2ecc71', 'High_Risk': '#f39c12', 'Not_Eligible': '#e74c3c'})
+                     color_discrete_map={'Eligible': '#2ecc71', 'High Risk': '#f39c12', 'Not Eligible': '#e74c3c'})
 fig6.update_traces(fill='toself', opacity=0.7)
 fig6.update_layout(polar=dict(radialaxis=dict(visible=False)), margin=dict(t=50, b=50))
 st.plotly_chart(fig6, use_container_width=True)
