@@ -223,8 +223,11 @@ elif st.session_state.calc_step == 4:
     text_colors = {"Eligible": "#166534", "High_Risk": "#92400e", "Not_Eligible": "#991b1b"}
     
     res_label = label.replace('_', ' ')
+    # Shared card style component for consistency
+    card_base = "display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 16px; padding: 2rem; text-align: center; border: 1px solid rgba(0,0,0,0.05); min-height: 320px;"
+
     r1.markdown(f"""
-        <div style="background: {colors[label]}; border-radius: 16px; padding: 2rem; text-align: center; border: 1px solid rgba(0,0,0,0.05);">
+        <div style="background: {colors[label]}; {card_base}">
             <div style="font-size: 3rem; margin-bottom: 0.5rem;">{indicators[label]}</div>
             <div style="font-size: 1.5rem; font-weight: 800; color: {text_colors[label]}">{res_label.upper()}</div>
             <div style="font-size: 0.9rem; opacity: 0.8; color: {text_colors[label]}">AI Risk Assessment Result</div>
@@ -233,24 +236,24 @@ elif st.session_state.calc_step == 4:
 
     if label == "Not_Eligible":
         r2.markdown(f"""
-            <div style="background: #fff1f2; border-radius: 16px; padding: 2rem; text-align: center; border: 1px solid rgba(0,0,0,0.05); height: 100%;">
+            <div style="background: #fff1f2; {card_base}">
                 <div style="font-size: 0.9rem; font-weight: 700; color: #9f1239; text-transform: uppercase;">Next Steps</div>
-                <div style="font-size: 1.2rem; font-weight: 700; color: #be123c; margin: 1rem 0;">Improve Your Profile</div>
+                <div style="font-size: 1.2rem; font-weight: 700; color: #be123c; margin: 0.8rem 0;">Improve Your Profile</div>
                 <div style="font-size: 0.85rem; color: #e11d48; line-height: 1.4;">
                     Based on our AI analysis, your current financial risk is too high. 
                     Consider reducing existing debts or increasing your down payment.
                 </div>
-                <a href="AI_Advisor" target="_self" style="display: inline-block; margin-top: 1rem; color: #be123c; font-weight: 700; text-decoration: none; font-size: 0.8rem; border: 1px solid #be123c; padding: 4px 12px; border-radius: 20px;">View AI Advice →</a>
+                <a href="AI_Advisor" target="_self" style="display: inline-block; margin-top: 1rem; color: #be123c; font-weight: 700; text-decoration: none; font-size: 0.8rem; border: 1px solid #be123c; padding: 6px 16px; border-radius: 20px;">View AI Advice →</a>
             </div>
         """, unsafe_allow_html=True)
     else:
         # Show Safe EMI for Eligible and High Risk
         r2.markdown(f"""
-            <div style="background: #f0f9ff; border-radius: 16px; padding: 2rem; text-align: center; border: 1px solid rgba(0,0,0,0.05); height: 100%;">
+            <div style="background: #f0f9ff; {card_base}">
                 <div style="font-size: 0.9rem; font-weight: 700; color: #075985; text-transform: uppercase;">Maximum Safe EMI</div>
                 <div style="font-size: 3.5rem; font-weight: 900; color: #0369a1; margin: 0.5rem 0;">₹{pred_emi:,.0f}</div>
                 <div style="font-size: 0.8rem; color: #0c4a6e;">Recommended monthly capacity</div>
-                <div style="font-size: 0.7rem; color: #0369a1; opacity: 0.6; margin-top: 0.5rem;">
+                <div style="font-size: 0.7rem; color: #0369a1; opacity: 0.6; margin-top: 0.8rem;">
                     { '⚠️ Exercise caution while borrowing' if label == 'High_Risk' else '✅ Safe to proceed with this amount' }
                 </div>
             </div>
