@@ -179,13 +179,34 @@ elif st.session_state.calc_step == 4:
 
     cat_cols = ['gender', 'marital_status', 'education', 'employment_type',
                 'company_type', 'house_type', 'emi_scenario', 'existing_loans']
-    for col in cat_cols:
-        try:
-            raw[col] = encoders[col].transform([raw[col]])[0]
-        except Exception:
-            raw[col] = 0
+    
+    # ── Feature Alignment ──────────────────────────────────────────
+    # The scaler expects columns in the exact order they were trained
+    FEATURE_COLS = [
+        'age', 'gender', 'marital_status', 'education', 'monthly_salary', 
+        'employment_type', 'years_of_employment', 'company_type', 'house_type', 
+        'monthly_rent', 'family_size', 'dependents', 'school_fees', 'college_fees', 
+        'travel_expenses', 'groceries_utilities', 'other_monthly_expenses', 
+        'existing_loans', 'current_emi_amount', 'credit_score', 'bank_balance', 
+        'emergency_fund', 'emi_scenario', 'requested_amount', 'requested_tenure', 
+        'total_monthly_expenses', 'disposable_income', 'emi_to_income_ratio', 
+        'savings_ratio', 'debt_burden', 'family_pressure'
+    ]
 
-    df_input = pd.DataFrame([raw])
+    # Apply Encoding
+    pd_raw = {}
+    for col in FEATURE_COLS:
+        val = raw.get(col, 0) # Default to 0 if missing
+        if col in cat_cols:
+            try:
+                pd_raw[col] = encoders[col].transform([str(val)])[0]
+            except:
+                pd_raw[col] = 0
+        else:
+            pd_raw[col] = float(val) if val is not None else 0.0
+
+    df_input = pd.DataFrame([pd_raw])[FEATURE_COLS] # Reorder to match training!
+
     X_scaled = scaler.transform(df_input)
     pred_class = clf.predict(X_scaled)[0]
     pred_proba = clf.predict_proba(X_scaled)[0]
