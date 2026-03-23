@@ -224,7 +224,7 @@ elif st.session_state.calc_step == 4:
     
     res_label = label.replace('_', ' ')
     # Shared card style component for consistency
-    card_base = "display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 16px; padding: 2rem; text-align: center; border: 1px solid rgba(0,0,0,0.05); min-height: 320px;"
+    card_base = "display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 16px; padding: 1.5rem 2rem; text-align: center; border: 1px solid rgba(0,0,0,0.05); min-height: 220px;"
 
     r1.markdown(f"""
         <div style="background: {colors[label]}; {card_base}">
