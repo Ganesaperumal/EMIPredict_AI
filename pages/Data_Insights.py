@@ -132,11 +132,13 @@ corr = num_df.corr().round(2)
 text_matrix = corr.map(lambda x: '' if x == 0 else str(x))
 
 fig5 = px.imshow(corr, 
-                 text_auto=True, 
+                 text_auto=False, 
                  aspect="auto", 
-                 color_continuous_scale='RdBu_r', # Red-Blue diverging scale
+                 color_continuous_scale='RdBu_r', 
                  color_continuous_midpoint=0,
                  title="Feature Correlation Matrix (Inter-relationships)")
+
+fig5.update_traces(text=text_matrix, texttemplate="%{text}")
 
 fig5.update_layout(
     width=1200, 
