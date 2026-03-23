@@ -17,6 +17,8 @@ venv/
 # Jupyter
 .ipynb_checkpoints/
 *.ipynb
+!notebooks/1_Data_Exploration.ipynb
+!notebooks/2_Model_Training.ipynb
 
 # OS
 .DS_Store
