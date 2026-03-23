@@ -19,6 +19,7 @@ venv/
 *.ipynb
 !notebooks/1_Data_Exploration.ipynb
 !notebooks/2_Model_Training.ipynb
+!notebooks/1b_Preprocessing_Deep_Dive.ipynb
 
 # OS
 .DS_Store
