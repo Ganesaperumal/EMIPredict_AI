@@ -131,10 +131,19 @@ num_df = df.select_dtypes(include='number').drop(columns=['max_monthly_emi'], er
 corr = num_df.corr().round(2)
 text_matrix = corr.map(lambda x: '' if x == 0 else str(x))
 
-fig5 = px.imshow(corr, text_auto=False, aspect="auto", color_continuous_scale='Mint', 
-                 title="Feature Correlation Matrix")
-fig5.update_traces(text=text_matrix, texttemplate="%{text}")
-fig5.update_layout(width=1000, height=600) # Give more vertical space for readability
+fig5 = px.imshow(corr, 
+                 text_auto=True, 
+                 aspect="auto", 
+                 color_continuous_scale='RdBu_r', # Red-Blue diverging scale
+                 color_continuous_midpoint=0,
+                 title="Feature Correlation Matrix (Inter-relationships)")
+
+fig5.update_layout(
+    width=1200, 
+    height=800, 
+    xaxis_tickangle=-45,
+    margin=dict(l=100, r=100, t=100, b=100)
+)
 st.plotly_chart(fig5, use_container_width=True)
 
 # ── Radar Risk Profiler ───────────────────────────────────────────
