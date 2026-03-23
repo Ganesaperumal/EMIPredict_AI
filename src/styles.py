@@ -7,24 +7,6 @@ div[data-testid="stSidebarNavContents"] {
     display: none !important;
 }
 
-/* Hide Streamlit Header & Branding */
-header[data-testid="stHeader"] {
-    display: none !important;
-}
-.block-container {
-    padding-top: 1rem !important;
-    padding-bottom: 3rem !important;
-}
-[data-testid="stStatusWidget"] {
-    display: none !important;
-}
-#MainMenu {
-    display: none !important;
-}
-footer {
-    display: none !important;
-}
-
 /* Main App Container - Apple-style subtle radial overlay */
 [data-testid="stAppViewContainer"] {
     background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);

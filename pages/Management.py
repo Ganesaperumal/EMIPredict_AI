@@ -3,10 +3,9 @@ import pandas as pd
 from pathlib import Path
 import os
 import sys
+from datetime import datetime
 
-# Add src to path
 sys.path.append(str(Path(__file__).parent.parent / 'src'))
-
 from styles import apply_glass_theme
 from navigation import render_sidebar_nav
 
@@ -29,14 +28,10 @@ st.markdown("""
 def load_data():
     if not DB_PATH.exists():
         return pd.DataFrame(columns=['Date', 'Income', 'Requested', 'Status', 'Max_EMI'])
-    try:
-        df = pd.read_csv(DB_PATH)
-        # Ensure it doesn't accidentally load the main dataset
-        if len(df) > 1000: # Safety check
-             return pd.DataFrame(columns=['Date', 'Income', 'Requested', 'Status', 'Max_EMI'])
-        return df
-    except:
-        return pd.DataFrame(columns=['Date', 'Income', 'Requested', 'Status', 'Max_EMI'])
+    return pd.read_csv(DB_PATH)
+
+def save_data(df):
+    df.to_csv(DB_PATH, index=False)
 
 df = load_data()
 
@@ -52,18 +47,96 @@ if df.empty:
         </p>
         <div style="margin-top: 2rem;">
             <a href="/EMI_Calculator" target="_self" style="text-decoration: none; background: #6366f1; 
-               color: white; padding: 0.8rem 1.5rem; border-radius: 12px; font-weight: 600;">🧙‍♂️ Go to Predictor</a>
+               color: white; padding: 0.8rem 1.5rem; border-radius: 12px; font-weight: 600; 
+               box-shadow: 0 4px 12px rgba(99,102,241,0.2);">🧙‍♂️ Go to Predictor</a>
         </div>
     </div>
     """, unsafe_allow_html=True)
 else:
-    st.subheader("📋 Saved Applications")
-    st.dataframe(df, use_container_width=True)
-    
-    if st.button("🚨 Purge All Records"):
-        if DB_PATH.exists():
-            os.remove(DB_PATH)
-            st.success("All records have been purged.")
-            st.rerun()
+    # ── Quick Analytics ──────────────────────────────────────────────────
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Total Applications", len(df))
+    eligible_count = len(df[df['Status'] == 'Eligible'])
+    col2.metric("Eligible Applicants", eligible_count)
+    col3.metric("System Load", "Optimal", "✅")
 
-st.stop() # Force stop to prevent any runaway rendering
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    tab_view, tab_edit, tab_admin = st.tabs(["📋 View Directory", "✏️ Edit Records", "🗑️ Admin Tools"])
+
+    with tab_view:
+        st.subheader("Applicant Directory")
+        # Search & Filter
+        f1, f2 = st.columns(2)
+        search = f1.text_input("Search (by Index or Date)", placeholder="Type to filter...")
+        status_filter = f2.selectbox("Filter by Status", ["All", "Eligible", "High_Risk", "Not_Eligible"])
+        
+        view_df = df.copy()
+        if status_filter != "All":
+            view_df = view_df[view_df['Status'] == status_filter]
+        
+        # Display as cards for premium feel
+        for i, row in view_df.iterrows():
+            status_color = "#10b981" if row['Status'] == 'Eligible' else ("#f59e0b" if row['Status'] == 'High_Risk' else "#ef4444")
+            st.markdown(f"""
+                <div class="mgmt-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <span style="font-weight: 800; color: #6366f1;">ID #{i}</span> 
+                            <span style="color: #64748b; font-size: 0.8rem; margin-left: 10px;">🕒 {row['Date']}</span>
+                        </div>
+                        <div style="background: {status_color}; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700;">
+                            {row['Status'].upper()}
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 40px; margin-top: 15px;">
+                        <div>
+                            <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Applicant Income</div>
+                            <div style="font-size: 1.1rem; font-weight: 700;">₹{row['Income']:,.0f}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Requested Loan</div>
+                            <div style="font-size: 1.1rem; font-weight: 700;">₹{row['Requested']:,.0f}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.7rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Max Safe EMI</div>
+                            <div style="font-size: 1.1rem; font-weight: 700; color: #0ea5e9;">₹{row['Max_EMI']:,.0f}</div>
+                        </div>
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
+
+    with tab_edit:
+        st.subheader("Manual Record Override")
+        edit_id = st.selectbox("Select Record ID to Modify", df.index)
+        if edit_id is not None:
+            curr_row = df.iloc[edit_id]
+            with st.form("edit_applicant"):
+                new_status = st.selectbox("Override Status", ["Eligible", "High_Risk", "Not_Eligible"], 
+                                         index=["Eligible", "High_Risk", "Not_Eligible"].index(curr_row['Status']))
+                new_income = st.number_input("Adjust Income", value=float(curr_row['Income']))
+                
+                if st.form_submit_button("Update Record 💾"):
+                    df.at[edit_id, 'Status'] = new_status
+                    df.at[edit_id, 'Income'] = new_income
+                    save_data(df)
+                    st.success(f"Record #{edit_id} updated successfully!")
+                    st.rerun()
+
+    with tab_admin:
+        st.subheader("Database Maintenance")
+        st.warning("These actions are permanent and cannot be undone.")
+        
+        del_id = st.number_input("Delete specific ID", min_value=0, max_value=len(df)-1, step=1)
+        if st.button("🗑️ Delete Selected Record", type="primary"):
+            df = df.drop(df.index[del_id])
+            save_data(df)
+            st.success(f"Record #{del_id} deleted.")
+            st.rerun()
+            
+        st.markdown("---")
+        if st.button("🚨 Purge All Records"):
+            if DB_PATH.exists():
+                os.remove(DB_PATH)
+                st.success("All records have been purged from the system.")
+                st.rerun()
