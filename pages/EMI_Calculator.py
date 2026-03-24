@@ -214,6 +214,16 @@ elif st.session_state.calc_step == 4:
 
     label = encoders['emi_eligibility'].classes_[pred_class]
     
+    # ── Sync to AI Advisor (Phase 2 State Management) ──────────────────
+    st.session_state.last_prediction = {
+        'income': data['monthly_salary'],
+        'emis': data['current_emi_amount'],
+        'credit_score': data['credit_score'],
+        'emergency_fund': data['emergency_fund'],
+        'eligibility': label,
+        'max_emi': float(pred_emi)
+    }
+
     # UI Results
     st.subheader("📊 Assessment Report")
     r1, r2 = st.columns(2)
@@ -256,6 +266,7 @@ elif st.session_state.calc_step == 4:
                 <div style="font-size: 0.7rem; color: #0369a1; opacity: 0.6; margin-top: 0.8rem;">
                     { '⚠️ Exercise caution while borrowing' if label == 'High_Risk' else '✅ Safe to proceed with this amount' }
                 </div>
+                <a href="AI_Advisor" target="_self" style="display: inline-block; margin-top: 1rem; color: #0369a1; font-weight: 700; text-decoration: none; font-size: 0.8rem; border: 1px solid #0369a1; padding: 6px 16px; border-radius: 20px;">View AI Advice →</a>
             </div>
         """, unsafe_allow_html=True)
 
