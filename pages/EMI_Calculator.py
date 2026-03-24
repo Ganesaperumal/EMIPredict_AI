@@ -258,22 +258,29 @@ elif st.session_state.calc_step == 4:
                 </div>
             """, unsafe_allow_html=True)
             
-            # Integrated Button via CSS
+            # Integrated Button via CSS (Robust Selector)
             st.markdown("""
                 <style>
-                div[data-testid="stColumn"] > div > div > div > div.stButton > button {
+                /* Target the button container to remove gaps */
+                div[data-testid="stColumn"] .stButton {
+                    margin-top: -1.5rem !important; /* Pull up further to overlap slightly */
+                    padding-top: 0 !important;
+                }
+                /* Style the button itself to match the card bottom */
+                div[data-testid="stColumn"] .stButton > button {
                     border-radius: 0 0 24px 24px !important;
-                    border: 1px solid rgba(0,0,0,0.05) !important;
+                    border: 1px solid rgba(0,0,0,0.08) !important;
                     border-top: none !important;
-                    margin-top: -1px !important;
                     background-color: #fff1f2 !important;
                     color: #be123c !important;
-                    font-weight: 700 !important;
-                    height: 50px !important;
+                    font-weight: 800 !important;
+                    height: 54px !important;
+                    box-shadow: 0 10px 15px -10px rgba(0,0,0,0.1) !important;
                 }
-                div[data-testid="stColumn"] > div > div > div > div.stButton > button:hover {
+                div[data-testid="stColumn"] .stButton > button:hover {
                     background-color: #ffe4e6 !important;
                     border-color: #be123c !important;
+                    transform: translateY(2px); /* Slight press effect */
                 }
                 </style>
             """, unsafe_allow_html=True)
@@ -284,6 +291,7 @@ elif st.session_state.calc_step == 4:
             # Show Safe EMI for Eligible and High Risk
             card_bg = "#f0f9ff" if label == "Eligible" else "#fff7ed" 
             text_col = "#0369a1" if label == "Eligible" else "#9a3412"
+            hover_bg = "#e0f2fe" if label == "Eligible" else "#ffedd5"
             
             st.markdown(f"""
                 <div style="background: {card_bg}; {card_base}; border-radius: 24px 24px 0 0; border-bottom: none; min-height: 200px; padding-bottom: 0.5rem;">
@@ -296,22 +304,27 @@ elif st.session_state.calc_step == 4:
                 </div>
             """, unsafe_allow_html=True)
 
-            # Integrated Button via CSS (Specific for Eligible Case)
+            # Integrated Button via CSS (Specific for Eligible/Risk Case)
             st.markdown(f"""
                 <style>
-                div[data-testid="stColumn"] > div > div > div > div.stButton > button {{
+                div[data-testid="stColumn"] .stButton {{
+                    margin-top: -1.5rem !important;
+                    padding-top: 0 !important;
+                }}
+                div[data-testid="stColumn"] .stButton > button {{
                     background-color: {card_bg} !important;
                     color: {text_col} !important;
                     border-radius: 0 0 24px 24px !important;
-                    border: 1px solid rgba(0,0,0,0.05) !important;
+                    border: 1px solid rgba(0,0,0,0.08) !important;
                     border-top: none !important;
-                    margin-top: -1px !important;
-                    font-weight: 700 !important;
-                    height: 50px !important;
+                    font-weight: 800 !important;
+                    height: 54px !important;
+                    box-shadow: 0 10px 15px -10px rgba(0,0,0,0.1) !important;
                 }}
-                div[data-testid="stColumn"] > div > div > div > div.stButton > button:hover {{
-                    background-color: { "#e0f2fe" if label == "Eligible" else "#ffedd5" } !important;
+                div[data-testid="stColumn"] .stButton > button:hover {{
+                    background-color: {hover_bg} !important;
                     border-color: {text_col} !important;
+                    transform: translateY(2px);
                 }}
                 </style>
             """, unsafe_allow_html=True)
