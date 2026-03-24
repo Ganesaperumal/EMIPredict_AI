@@ -244,33 +244,80 @@ elif st.session_state.calc_step == 4:
         </div>
     """, unsafe_allow_html=True)
 
-    if label == "Not_Eligible":
-        r2.markdown(f"""
-            <div style="background: #fff1f2; {card_base}">
-                <div style="font-size: 0.9rem; font-weight: 700; color: #9f1239; text-transform: uppercase;">Next Steps</div>
-                <div style="font-size: 1.2rem; font-weight: 700; color: #be123c; margin: 0.8rem 0;">Improve Your Profile</div>
-                <div style="font-size: 0.85rem; color: #e11d48; line-height: 1.4;">
-                    Based on our AI analysis, your current financial risk is too high. 
-                    Consider reducing existing debts or increasing your down payment.
+    # ── Interactive Result Card ──────────────────────────────────────
+    with r2:
+        if label == "Not_Eligible":
+            st.markdown(f"""
+                <div style="background: #fff1f2; {card_base}; border-radius: 24px 24px 0 0; border-bottom: none; min-height: 200px; padding-bottom: 0.5rem;">
+                    <div style="font-size: 0.9rem; font-weight: 700; color: #9f1239; text-transform: uppercase;">Next Steps</div>
+                    <div style="font-size: 1.2rem; font-weight: 700; color: #be123c; margin: 0.8rem 0;">Improve Your Profile</div>
+                    <div style="font-size: 0.85rem; color: #e11d48; line-height: 1.4;">
+                        Based on our AI analysis, your current financial risk is too high. 
+                        Consider reducing existing debts or increasing your down payment.
+                    </div>
                 </div>
-            </div>
-        """, unsafe_allow_html=True)
-        if r2.button("View AI Advice →", key="nav_adv_not_eligible", use_container_width=True):
-            st.switch_page("pages/AI_Advisor.py")
-    else:
-        # Show Safe EMI for Eligible and High Risk
-        r2.markdown(f"""
-            <div style="background: #f0f9ff; {card_base}">
-                <div style="font-size: 0.9rem; font-weight: 700; color: #075985; text-transform: uppercase;">Maximum Safe EMI</div>
-                <div style="font-size: 3.5rem; font-weight: 900; color: #0369a1; margin: 0.5rem 0;">₹{pred_emi:,.0f}</div>
-                <div style="font-size: 0.8rem; color: #0c4a6e;">Recommended monthly capacity</div>
-                <div style="font-size: 0.7rem; color: #0369a1; opacity: 0.6; margin-top: 0.8rem;">
-                    { '⚠️ Exercise caution while borrowing' if label == 'High_Risk' else '✅ Safe to proceed with this amount' }
+            """, unsafe_allow_html=True)
+            
+            # Integrated Button via CSS
+            st.markdown("""
+                <style>
+                div[data-testid="stColumn"] > div > div > div > div.stButton > button {
+                    border-radius: 0 0 24px 24px !important;
+                    border: 1px solid rgba(0,0,0,0.05) !important;
+                    border-top: none !important;
+                    margin-top: -1px !important;
+                    background-color: #fff1f2 !important;
+                    color: #be123c !important;
+                    font-weight: 700 !important;
+                    height: 50px !important;
+                }
+                div[data-testid="stColumn"] > div > div > div > div.stButton > button:hover {
+                    background-color: #ffe4e6 !important;
+                    border-color: #be123c !important;
+                }
+                </style>
+            """, unsafe_allow_html=True)
+            
+            if st.button("View AI Advice →", key="nav_adv_not_eligible", use_container_width=True):
+                st.switch_page("pages/AI_Advisor.py")
+        else:
+            # Show Safe EMI for Eligible and High Risk
+            card_bg = "#f0f9ff" if label == "Eligible" else "#fff7ed" 
+            text_col = "#0369a1" if label == "Eligible" else "#9a3412"
+            
+            st.markdown(f"""
+                <div style="background: {card_bg}; {card_base}; border-radius: 24px 24px 0 0; border-bottom: none; min-height: 200px; padding-bottom: 0.5rem;">
+                    <div style="font-size: 0.9rem; font-weight: 700; color: {text_col}; text-transform: uppercase;">Maximum Safe EMI</div>
+                    <div style="font-size: 3.5rem; font-weight: 900; color: {text_col}; margin: 0.5rem 0;">₹{pred_emi:,.0f}</div>
+                    <div style="font-size: 0.8rem; color: {text_col}; opacity: 0.8;">Recommended monthly capacity</div>
+                    <div style="font-size: 0.7rem; color: {text_col}; opacity: 0.6; margin-top: 0.8rem;">
+                        { '⚠️ Exercise caution while borrowing' if label == 'High_Risk' else '✅ Safe to proceed with this amount' }
+                    </div>
                 </div>
-            </div>
-        """, unsafe_allow_html=True)
-        if r2.button("View AI Advice →", key="nav_adv_eligible", use_container_width=True):
-            st.switch_page("pages/AI_Advisor.py")
+            """, unsafe_allow_html=True)
+
+            # Integrated Button via CSS (Specific for Eligible Case)
+            st.markdown(f"""
+                <style>
+                div[data-testid="stColumn"] > div > div > div > div.stButton > button {{
+                    background-color: {card_bg} !important;
+                    color: {text_col} !important;
+                    border-radius: 0 0 24px 24px !important;
+                    border: 1px solid rgba(0,0,0,0.05) !important;
+                    border-top: none !important;
+                    margin-top: -1px !important;
+                    font-weight: 700 !important;
+                    height: 50px !important;
+                }}
+                div[data-testid="stColumn"] > div > div > div > div.stButton > button:hover {{
+                    background-color: { "#e0f2fe" if label == "Eligible" else "#ffedd5" } !important;
+                    border-color: {text_col} !important;
+                }}
+                </style>
+            """, unsafe_allow_html=True)
+
+            if st.button("View AI Advice →", key="nav_adv_eligible", use_container_width=True):
+                st.switch_page("pages/AI_Advisor.py")
 
     st.markdown("---")
     st.write("**Confidence Breakdown:**")
