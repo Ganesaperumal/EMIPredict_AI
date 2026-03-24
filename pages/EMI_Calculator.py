@@ -245,31 +245,93 @@ elif st.session_state.calc_step == 4:
     """, unsafe_allow_html=True)
 
     if label == "Not_Eligible":
-        r2.markdown(f"""
-            <div style="background: #fff1f2; {card_base}">
-                <div style="font-size: 0.9rem; font-weight: 700; color: #9f1239; text-transform: uppercase;">Next Steps</div>
-                <div style="font-size: 1.2rem; font-weight: 700; color: #be123c; margin: 0.8rem 0;">Improve Your Profile</div>
-                <div style="font-size: 0.85rem; color: #e11d48; line-height: 1.4;">
-                    Based on our AI analysis, your current financial risk is too high. 
-                    Consider reducing existing debts or increasing your down payment.
+        with r2:
+            st.markdown(f"""
+                <div style="background: #fff1f2; {card_base}; min-height: 240px; padding-bottom: 3.5rem;">
+                    <div style="font-size: 0.9rem; font-weight: 700; color: #9f1239; text-transform: uppercase;">Next Steps</div>
+                    <div style="font-size: 1.2rem; font-weight: 700; color: #be123c; margin: 0.8rem 0;">Improve Your Profile</div>
+                    <div style="font-size: 0.85rem; color: #e11d48; line-height: 1.4;">
+                        Based on our AI analysis, your current financial risk is too high. 
+                        Consider reducing existing debts or increasing your down payment.
+                    </div>
                 </div>
-                <a href="/AI_Advisor" target="_self" style="display: inline-block; margin-top: 1rem; color: #be123c; font-weight: 700; text-decoration: none; font-size: 0.8rem; border: 1px solid #be123c; padding: 6px 16px; border-radius: 20px;">View AI Advice →</a>
-            </div>
-        """, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
+            
+            # Integrated Pill Button (Centered & Styled to match user snippet)
+            st.markdown("""
+                <style>
+                div[data-testid="stColumn"] .stButton {
+                    margin-top: -4.8rem !important;
+                    display: flex !important;
+                    justify-content: center !important;
+                }
+                div[data-testid="stColumn"] .stButton > button {
+                    background-color: transparent !important;
+                    color: #be123c !important;
+                    font-weight: 700 !important;
+                    font-size: 0.8rem !important;
+                    border: 1px solid #be123c !important;
+                    padding: 6px 16px !important;
+                    border-radius: 20px !important;
+                    height: auto !important;
+                    line-height: 1.2 !important;
+                    min-height: 0 !important;
+                    width: auto !important;
+                }
+                div[data-testid="stColumn"] .stButton > button:hover {
+                    background-color: #be123c !important;
+                    color: white !important;
+                }
+                </style>
+            """, unsafe_allow_html=True)
+            
+            if st.button("View AI Advice →", key="nav_adv_not_eligible"):
+                st.switch_page("pages/AI_Advisor.py")
     else:
         # Show Safe EMI for Eligible and High Risk
         btn_col = "#0369a1" if label == "Eligible" else "#9a3412"
-        r2.markdown(f"""
-            <div style="background: #f0f9ff; {card_base}">
-                <div style="font-size: 0.9rem; font-weight: 700; color: #075985; text-transform: uppercase;">Maximum Safe EMI</div>
-                <div style="font-size: 3.5rem; font-weight: 900; color: #0369a1; margin: 0.5rem 0;">₹{pred_emi:,.0f}</div>
-                <div style="font-size: 0.8rem; color: #0c4a6e;">Recommended monthly capacity</div>
-                <div style="font-size: 0.7rem; color: #0369a1; opacity: 0.6; margin-top: 0.8rem;">
-                    { '⚠️ Exercise caution while borrowing' if label == 'High_Risk' else '✅ Safe to proceed with this amount' }
+        with r2:
+            st.markdown(f"""
+                <div style="background: #f0f9ff; {card_base}; min-height: 240px; padding-bottom: 3.5rem;">
+                    <div style="font-size: 0.9rem; font-weight: 700; color: #075985; text-transform: uppercase;">Maximum Safe EMI</div>
+                    <div style="font-size: 3.5rem; font-weight: 900; color: {btn_col}; margin: 0.5rem 0;">₹{pred_emi:,.0f}</div>
+                    <div style="font-size: 0.8rem; color: #0c4a6e;">Recommended monthly capacity</div>
+                    <div style="font-size: 0.7rem; color: {btn_col}; opacity: 0.6; margin-top: 0.8rem;">
+                        { '⚠️ Exercise caution while borrowing' if label == 'High_Risk' else '✅ Safe to proceed with this amount' }
+                    </div>
                 </div>
-                <a href="/AI_Advisor" target="_self" style="display: inline-block; margin-top: 1rem; color: {btn_col}; font-weight: 700; text-decoration: none; font-size: 0.8rem; border: 1px solid {btn_col}; padding: 6px 16px; border-radius: 20px;">View AI Advice →</a>
-            </div>
-        """, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
+
+            # Integrated Pill Button (Centered & Styled to match user snippet)
+            st.markdown(f"""
+                <style>
+                div[data-testid="stColumn"] .stButton {{
+                    margin-top: -4.8rem !important;
+                    display: flex !important;
+                    justify-content: center !important;
+                }}
+                div[data-testid="stColumn"] .stButton > button {{
+                    background-color: transparent !important;
+                    color: {btn_col} !important;
+                    font-weight: 700 !important;
+                    font-size: 0.8rem !important;
+                    border: 1px solid {btn_col} !important;
+                    padding: 6px 16px !important;
+                    border-radius: 20px !important;
+                    height: auto !important;
+                    line-height: 1.2 !important;
+                    min-height: 0 !important;
+                    width: auto !important;
+                }}
+                div[data-testid="stColumn"] .stButton > button:hover {{
+                    background-color: {btn_col} !important;
+                    color: white !important;
+                }}
+                </style>
+            """, unsafe_allow_html=True)
+
+            if st.button("View AI Advice →", key="nav_adv_eligible"):
+                st.switch_page("pages/AI_Advisor.py")
 
     st.markdown("---")
     st.write("**Confidence Breakdown:**")
