@@ -45,13 +45,10 @@ if df.empty:
         <p style="color: #94a3b8; max-width: 400px; margin: 0 auto;">
             Predictions saved in the <b>EMI Predictor</b> wizard will appear here automatically for review and management.
         </p>
-        <div style="margin-top: 2rem;">
-            <a href="/EMI_Calculator" target="_self" style="text-decoration: none; background: #6366f1; 
-               color: white; padding: 0.8rem 1.5rem; border-radius: 12px; font-weight: 600; 
-               box-shadow: 0 4px 12px rgba(99,102,241,0.2);">🧙‍♂️ Go to Predictor</a>
-        </div>
-    </div>
+        <div style="margin-top: 1rem;"></div>
     """, unsafe_allow_html=True)
+    if st.button("🧙‍♂️ Go to Predictor", use_container_width=True):
+        st.switch_page("pages/EMI_Calculator.py")
 else:
     # ── Quick Analytics ──────────────────────────────────────────────────
     col1, col2, col3 = st.columns(3)
