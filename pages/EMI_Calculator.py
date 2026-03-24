@@ -246,8 +246,8 @@ elif st.session_state.calc_step == 4:
 
     if label == "Not_Eligible":
         r2.markdown(f"""
-            <div style="background: #fff1f2; {card_base}">
-                <div style="font-size: 0.9rem; font-weight: 700; color: #9f1239; text-transform: uppercase;">Next Steps</div>
+            <div style="background: #fff1f2; color: #9f1239; {card_base}; padding-bottom: 2.5rem;">
+                <div style="font-size: 0.9rem; font-weight: 700; text-transform: uppercase;">Next Steps</div>
                 <div style="font-size: 1.2rem; font-weight: 700; color: #be123c; margin: 0.8rem 0;">Improve Your Profile</div>
                 <div style="font-size: 0.85rem; color: #e11d48; line-height: 1.4;">
                     Based on our AI analysis, your current financial risk is too high. 
@@ -259,12 +259,13 @@ elif st.session_state.calc_step == 4:
             st.switch_page("pages/AI_Advisor.py")
     else:
         # Show Safe EMI for Eligible and High Risk
+        accent = "#0369a1" if label == "Eligible" else "#92400e"
         r2.markdown(f"""
-            <div style="background: #f0f9ff; {card_base}">
-                <div style="font-size: 0.9rem; font-weight: 700; color: #075985; text-transform: uppercase;">Maximum Safe EMI</div>
-                <div style="font-size: 3.5rem; font-weight: 900; color: #0369a1; margin: 0.5rem 0;">₹{pred_emi:,.0f}</div>
-                <div style="font-size: 0.8rem; color: #0c4a6e;">Recommended monthly capacity</div>
-                <div style="font-size: 0.7rem; color: #0369a1; opacity: 0.6; margin-top: 0.8rem;">
+            <div style="background: #f0f9ff; color: {accent}; {card_base}; padding-bottom: 2.5rem;">
+                <div style="font-size: 0.9rem; font-weight: 700; text-transform: uppercase;">Maximum Safe EMI</div>
+                <div style="font-size: 3.5rem; font-weight: 900; margin: 0.5rem 0;">₹{pred_emi:,.0f}</div>
+                <div style="font-size: 0.8rem; opacity: 0.8;">Recommended monthly capacity</div>
+                <div style="font-size: 0.7rem; opacity: 0.6; margin-top: 0.8rem;">
                     { '⚠️ Exercise caution while borrowing' if label == 'High_Risk' else '✅ Safe to proceed with this amount' }
                 </div>
             </div>

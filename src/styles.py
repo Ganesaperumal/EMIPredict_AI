@@ -187,6 +187,19 @@ div[data-testid="stSidebarNavContents"] {
     box-shadow: 0 12px 24px rgba(0,0,0,0.05);
 }
 
+/* Embedded Card Buttons */
+div.stButton > button:has(div[p-key="btn_advice_neg"]),
+div.stButton > button:has(div[p-key="btn_advice_pos"]) {
+    background-color: transparent !important;
+    border: 1px solid currentColor !important;
+    border-radius: 20px !important;
+    font-weight: 700 !important;
+    font-size: 0.8rem !important;
+    padding: 0.2rem 1rem !important;
+    margin-top: -30px !important; /* Pull into card */
+    z-index: 10 !important;
+}
+
 </style>
 
 
