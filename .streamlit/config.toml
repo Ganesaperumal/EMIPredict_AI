@@ -6,13 +6,13 @@ secondaryBackgroundColor="#f1f5f9"
 textColor="#1e293b"
 
 [server]
-headless = false
-runOnSave = true
-toolbarMode = "auto"
+headless = true
+runOnSave = false
+enableCORS = false
+enableXsrfProtection = false
 
 [client]
-showErrorDetails = false
-toolbarMode = "auto"
+showErrorDetails = true
 
 [runner]
-magic = false
+# Streamlit config optimized for cloud deployment
