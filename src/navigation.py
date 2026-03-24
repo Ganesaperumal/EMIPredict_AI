@@ -1,6 +1,18 @@
 import streamlit as st
+import os
+from pathlib import Path
 
 def render_sidebar_nav(current_page):
+    # ── 0. Global Session-Only Data Purge (Clears CSV on Refresh) ────────
+    if 'global_session_purged' not in st.session_state:
+        db_path = Path(__file__).parent.parent / 'data/applicant_records.csv'
+        if db_path.exists():
+            try:
+                os.remove(db_path)
+            except:
+                pass
+        st.session_state.global_session_purged = True
+
     # ── 1. Branded Header (Premium Liquid Glass) ───────────────────────────
     st.sidebar.markdown("""
         <div style="background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); 

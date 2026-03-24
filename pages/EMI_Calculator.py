@@ -234,7 +234,7 @@ elif st.session_state.calc_step == 4:
     
     res_label = label.replace('_', ' ')
     # Shared card style component for consistency
-    card_base = "display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 16px; padding: 1.5rem 2rem; text-align: center; border: 1px solid rgba(0,0,0,0.05); min-height: 220px;"
+    card_base = "display: grid; align-content: center; justify-items: center; border-radius: 16px; padding: 1.2rem 1.5rem; text-align: center; border: 1px solid rgba(0,0,0,0.05); height: 200px; overflow: hidden;"
 
     r1.markdown(f"""
         <div style="background: {colors[label]}; {card_base}">
@@ -246,22 +246,22 @@ elif st.session_state.calc_step == 4:
 
     if label == "Not_Eligible":
         r2.markdown(f"""
-            <div style="background: #fff1f2; color: #9f1239; {card_base}; padding-bottom: 2.5rem;">
+            <div style="background: #fff1f2; color: #9f1239; {card_base}">
                 <div style="font-size: 0.9rem; font-weight: 700; text-transform: uppercase;">Next Steps</div>
                 <div style="font-size: 1.2rem; font-weight: 700; color: #be123c; margin: 0.8rem 0;">Improve Your Profile</div>
                 <div style="font-size: 0.85rem; color: #e11d48; line-height: 1.4;">
-                    Based on our AI analysis, your current financial risk is too high. 
+                    Based on our AI analysis, your current financial risk is too high.
+                </div>
+                <div style="font-size: 0.85rem; color: #e11d48; line-height: 1.4;">
                     Consider reducing existing debts or increasing your down payment.
                 </div>
             </div>
         """, unsafe_allow_html=True)
-        if r2.button("View AI Advice →", key="btn_advice_neg", use_container_width=True):
-            st.switch_page("pages/AI_Advisor.py")
     else:
         # Show Safe EMI for Eligible and High Risk
         accent = "#0369a1" if label == "Eligible" else "#92400e"
         r2.markdown(f"""
-            <div style="background: #f0f9ff; color: {accent}; {card_base}; padding-bottom: 2.5rem;">
+            <div style="background: #f0f9ff; color: {accent}; {card_base}">
                 <div style="font-size: 0.9rem; font-weight: 700; text-transform: uppercase;">Maximum Safe EMI</div>
                 <div style="font-size: 3.5rem; font-weight: 900; margin: 0.5rem 0;">₹{pred_emi:,.0f}</div>
                 <div style="font-size: 0.8rem; opacity: 0.8;">Recommended monthly capacity</div>
@@ -270,16 +270,18 @@ elif st.session_state.calc_step == 4:
                 </div>
             </div>
         """, unsafe_allow_html=True)
-        if r2.button("View AI Advice →", key="btn_advice_pos", use_container_width=True):
-            st.switch_page("pages/AI_Advisor.py")
 
     st.markdown("---")
     st.write("**Confidence Breakdown:**")
     for i, lbl in enumerate(encoders['emi_eligibility'].classes_):
         st.progress(float(pred_proba[i]), text=f"{lbl}: {pred_proba[i]*100:.1f}%")
 
+    r3, r4 = st.columns(2)
+    if r4.button("🤝 View AI Advice →", key="btn_advice_final", use_container_width=True):
+        st.switch_page("pages/AI_Advisor.py")
+
     # SAVE TO DATABASE (Phase 2 Feature)
-    if st.button("💾 Save Applicant Record to Management Console"):
+    if r3.button("💾 Save Applicant Record to Management Console", use_container_width=True):
         import os
         from datetime import datetime
         db_path = PROJECT_ROOT / 'data/applicant_records.csv'

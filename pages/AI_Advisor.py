@@ -4,6 +4,7 @@ import matplotlib.patches as mpatches
 import pandas as pd
 import plotly.graph_objects as go
 import numpy as np
+import joblib
 from pathlib import Path
 import sys
 sys.path.append(str(Path(__file__).parent.parent / 'src'))
@@ -16,6 +17,15 @@ apply_glass_theme()
 # Custom Navigation
 render_sidebar_nav("pages/AI_Advisor.py")
 
+@st.cache_resource
+def load_models():
+    PROJECT_ROOT = Path(__file__).parent.parent
+    clf      = joblib.load(PROJECT_ROOT / 'models/best_classifier.pkl')
+    reg      = joblib.load(PROJECT_ROOT / 'models/best_regressor.pkl')
+    scaler   = joblib.load(PROJECT_ROOT / 'models/scaler.pkl')
+    encoders = joblib.load(PROJECT_ROOT / 'models/encoders.pkl')
+    return clf, reg, scaler, encoders
+
 
 # ── Header ────────────────────────────────────────────────────────────
 st.markdown("""
@@ -24,6 +34,10 @@ st.markdown("""
     <p>Personalized Financial Guidance & Recommendations</p>
 </div>
 """, unsafe_allow_html=True)
+
+# ── 1. Determine View State ───────────────────────────────────────
+# We no longer auto-load from CSV to ensure that the Calculator (1) 
+# and Manual Form (3) follow strict precedence and fresh start rules.
 
 
 
@@ -51,27 +65,9 @@ with tab1:
 
     st.markdown("### 🎯 Your Personalized Recommendations")
 
+    # ── 2. Determine View State ───────────────────────────────────────
     if 'last_prediction' not in st.session_state:
-        # ── Fallback: Try loading from Management Console (CSV) ────────────
-        db_path = Path(__file__).parent.parent / 'data/applicant_records.csv'
-        if db_path.exists():
-            try:
-                df_saved = pd.read_csv(db_path)
-                if not df_saved.empty:
-                    last_row = df_saved.iloc[-1]
-                    st.session_state.last_prediction = {
-                        'income': last_row['Income'],
-                        'emis': last_row['EMIs'],
-                        'credit_score': last_row['Credit_Score'],
-                        'emergency_fund': last_row['Emergency_Fund'],
-                        'eligibility': last_row['Status'],
-                        'max_emi': last_row['Max_EMI']
-                    }
-                    st.rerun() # Refresh with the new data
-            except:
-                pass
-
-        # ── Empty State Card Refined (Matches Request) ────────────────────
+        # Show "No Data" Card
         col_m1, col_m2, col_m3 = st.columns([1, 2, 1])
         with col_m2:
             with st.container(border=True):
@@ -89,22 +85,108 @@ with tab1:
 
         
         # Optional: Keep the manual form collapsed for better UX
-        with st.expander("🛠️ Or Enter Details Manually"):
+        with st.expander("🛠️ Or Enter Details Manually", expanded=False):
             col1, col2, col3 = st.columns(3)
             m_income  = col1.number_input("Monthly Income (₹)", 10000, 500000, 50000, key="m_inc")
             m_emis    = col2.number_input("Total Monthly EMIs (₹)", 0, 300000, 10000, key="m_emi")
             c_score   = col3.slider("Credit Score", 300, 850, 650, key="c_scr")
+            
             e_fund    = col1.number_input("Emergency Fund (₹)", 0, 2000000, 30000, key="e_fnd")
             m_savings = col2.number_input("Monthly Savings (₹)", 0, 200000, 5000, key="m_svg")
+            m_balance = col3.number_input("Bank Balance (₹)", 0, 5000000, 150000, key="m_bal")
+            
+            m_req_amt = col1.number_input("Requested Loan (₹)", 10000, 5000000, 200000, key="m_req")
+            m_tenure  = col2.slider("Tenure (months)", 3, 84, 24, key="m_ten")
+            m_scenario = col3.selectbox("Loan Scenario", ["Personal Loan EMI", "Vehicle EMI", "Education EMI", "E-commerce Shopping EMI", "Home Appliances EMI"], key="m_sce")
+            
+            m_loans   = col1.selectbox("Any Existing Loans?", ["No", "Yes"], key="m_ex_ln")
+            
             calc_manual = st.button("🔍 Generate Manual Advice", use_container_width=True)
             
             if calc_manual:
-                data = {
-                    'income': m_income, 'emis': m_emis, 'credit_score': c_score,
-                    'emergency_fund': e_fund, 'monthly_savings': m_savings
+                clf, reg, scaler, encoders = load_models()
+                
+                # 1. Setup Data from Inputs & Realistic Defaults
+                manual_data = {
+                    'age': 35, 'gender': 'Male', 'marital_status': 'Married', 'education': 'Graduate',
+                    'employment_type': 'Private', 'years_of_employment': 5, 'company_type': 'Medium',
+                    'house_type': 'Own', 'family_size': 4, 'dependents': 1, 'monthly_rent': 0,
+                    'school_fees': 0, 'college_fees': 0, 'travel_expenses': 2000, 
+                    'groceries_utilities': 10000, 'other_monthly_expenses': 5000,
                 }
-                # Data-driven manual advice
-                # ... 
+                
+                # Update with User's Manual Selections
+                manual_data.update({
+                    'monthly_salary': m_income,
+                    'current_emi_amount': m_emis,
+                    'credit_score': c_score,
+                    'emergency_fund': e_fund,
+                    'bank_balance': m_balance,
+                    'requested_amount': m_req_amt,
+                    'requested_tenure': m_tenure,
+                    'emi_scenario': m_scenario,
+                    'existing_loans': m_loans
+                })
+                
+                # 2. Calculate Engineered Features (Using implied expenses from savings)
+                # If User saves X and pays Y emi, their other expenses must be Income - X - Y
+                implied_expenses = m_income - m_emis - m_savings
+                total_exp = max(implied_expenses, 5000) # Floor at 5k for realism
+                
+                manual_data.update({
+                    'total_monthly_expenses': total_exp + m_emis, # include the emi in total exp
+                    'disposable_income': m_income - (total_exp + m_emis),
+                    'emi_to_income_ratio': manual_data['requested_amount'] / (manual_data['monthly_salary'] * manual_data['requested_tenure'] + 1),
+                    'savings_ratio': (manual_data['bank_balance'] + manual_data['emergency_fund']) / (manual_data['monthly_salary'] + 1),
+                    'debt_burden': manual_data['current_emi_amount'] / (manual_data['monthly_salary'] + 1),
+                    'family_pressure': manual_data['dependents'] / (manual_data['monthly_salary'] / 10000 + 1)
+                })
+                
+                # 4. Feature Alignment (Exact 31 Columns)
+                FEATURE_COLS = [
+                    'age', 'gender', 'marital_status', 'education', 'monthly_salary', 
+                    'employment_type', 'years_of_employment', 'company_type', 'house_type', 
+                    'monthly_rent', 'family_size', 'dependents', 'school_fees', 'college_fees', 
+                    'travel_expenses', 'groceries_utilities', 'other_monthly_expenses', 
+                    'existing_loans', 'current_emi_amount', 'credit_score', 'bank_balance', 
+                    'emergency_fund', 'emi_scenario', 'requested_amount', 'requested_tenure', 
+                    'total_monthly_expenses', 'disposable_income', 'emi_to_income_ratio', 
+                    'savings_ratio', 'debt_burden', 'family_pressure'
+                ]
+                
+                cat_cols = ['gender', 'marital_status', 'education', 'employment_type',
+                            'company_type', 'house_type', 'emi_scenario', 'existing_loans']
+                
+                pd_raw = {}
+                for col in FEATURE_COLS:
+                    val = manual_data.get(col, 0)
+                    if col in cat_cols:
+                        try:
+                            pd_raw[col] = encoders[col].transform([str(val)])[0]
+                        except:
+                            pd_raw[col] = 0
+                    else:
+                        pd_raw[col] = float(val) if val is not None else 0.0
+                
+                df_input = pd.DataFrame([pd_raw])[FEATURE_COLS]
+                X_scaled = scaler.transform(df_input)
+                
+                # 5. Predict
+                pred_class = clf.predict(X_scaled)[0]
+                pred_emi = reg.predict(X_scaled)[0]
+                label = encoders['emi_eligibility'].classes_[pred_class]
+                
+                # 6. Save to Session State
+                st.session_state.last_prediction = {
+                    'income': m_income,
+                    'emis': m_emis,
+                    'credit_score': c_score,
+                    'emergency_fund': e_fund,
+                    'eligibility': label,
+                    'max_emi': float(pred_emi)
+                }
+                st.success("✅ Assessment generated successfully!")
+                st.rerun()
     else:
         # ── Data-Driven Advice (Using session state) ───────────────────────
         data = st.session_state.last_prediction
@@ -196,7 +278,9 @@ with tab1:
 
 
         if st.button("🔄 Clear Results and Start Over", use_container_width=True):
-            del st.session_state.last_prediction
+            if 'last_prediction' in st.session_state:
+                del st.session_state.last_prediction
+            st.session_state.csv_autoload_done = True 
             st.rerun()
 
 
