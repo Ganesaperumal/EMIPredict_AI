@@ -248,7 +248,7 @@ elif st.session_state.calc_step == 4:
     with r2:
         if label == "Not_Eligible":
             st.markdown(f"""
-                <div style="background: #fff1f2; {card_base}; border-radius: 24px 24px 0 0; border-bottom: none; min-height: 200px; padding-bottom: 0.5rem;">
+                <div style="background: #fff1f2; {card_base}; min-height: 220px; padding-bottom: 2rem;">
                     <div style="font-size: 0.9rem; font-weight: 700; color: #9f1239; text-transform: uppercase;">Next Steps</div>
                     <div style="font-size: 1.2rem; font-weight: 700; color: #be123c; margin: 0.8rem 0;">Improve Your Profile</div>
                     <div style="font-size: 0.85rem; color: #e11d48; line-height: 1.4;">
@@ -258,43 +258,43 @@ elif st.session_state.calc_step == 4:
                 </div>
             """, unsafe_allow_html=True)
             
-            # Integrated Button via CSS (Robust Selector)
+            # Integrated Pill Button via CSS
             st.markdown("""
                 <style>
-                /* Target the button container to remove gaps */
                 div[data-testid="stColumn"] .stButton {
-                    margin-top: -1.5rem !important; /* Pull up further to overlap slightly */
-                    padding-top: 0 !important;
+                    margin-top: -3.8rem !important;
+                    text-align: center !important;
+                    display: flex !important;
+                    justify-content: center !important;
                 }
-                /* Style the button itself to match the card bottom */
                 div[data-testid="stColumn"] .stButton > button {
-                    border-radius: 0 0 24px 24px !important;
-                    border: 1px solid rgba(0,0,0,0.08) !important;
-                    border-top: none !important;
-                    background-color: #fff1f2 !important;
+                    width: auto !important;
+                    min-width: 200px !important;
+                    border-radius: 40px !important;
+                    border: 1px solid #be123c !important;
+                    background-color: white !important;
                     color: #be123c !important;
-                    font-weight: 800 !important;
-                    height: 54px !important;
-                    box-shadow: 0 10px 15px -10px rgba(0,0,0,0.1) !important;
+                    font-weight: 700 !important;
+                    height: 44px !important;
+                    box-shadow: 0 4px 12px rgba(190, 18, 60, 0.1) !important;
                 }
                 div[data-testid="stColumn"] .stButton > button:hover {
-                    background-color: #ffe4e6 !important;
-                    border-color: #be123c !important;
-                    transform: translateY(2px); /* Slight press effect */
+                    background-color: #fff1f2 !important;
+                    border-color: #9f1239 !important;
+                    transform: scale(1.02) !important;
                 }
                 </style>
             """, unsafe_allow_html=True)
             
-            if st.button("View AI Advice →", key="nav_adv_not_eligible", use_container_width=True):
+            if st.button("View AI Advice →", key="nav_adv_not_eligible", use_container_width=False):
                 st.switch_page("pages/AI_Advisor.py")
         else:
             # Show Safe EMI for Eligible and High Risk
             card_bg = "#f0f9ff" if label == "Eligible" else "#fff7ed" 
             text_col = "#0369a1" if label == "Eligible" else "#9a3412"
-            hover_bg = "#e0f2fe" if label == "Eligible" else "#ffedd5"
             
             st.markdown(f"""
-                <div style="background: {card_bg}; {card_base}; border-radius: 24px 24px 0 0; border-bottom: none; min-height: 200px; padding-bottom: 0.5rem;">
+                <div style="background: {card_bg}; {card_base}; min-height: 220px; padding-bottom: 2rem;">
                     <div style="font-size: 0.9rem; font-weight: 700; color: {text_col}; text-transform: uppercase;">Maximum Safe EMI</div>
                     <div style="font-size: 3.5rem; font-weight: 900; color: {text_col}; margin: 0.5rem 0;">₹{pred_emi:,.0f}</div>
                     <div style="font-size: 0.8rem; color: {text_col}; opacity: 0.8;">Recommended monthly capacity</div>
@@ -304,32 +304,35 @@ elif st.session_state.calc_step == 4:
                 </div>
             """, unsafe_allow_html=True)
 
-            # Integrated Button via CSS (Specific for Eligible/Risk Case)
+            # Integrated Pill Button 
             st.markdown(f"""
                 <style>
                 div[data-testid="stColumn"] .stButton {{
-                    margin-top: -1.5rem !important;
-                    padding-top: 0 !important;
+                    margin-top: -3.8rem !important;
+                    text-align: center !important;
+                    display: flex !important;
+                    justify-content: center !important;
                 }}
                 div[data-testid="stColumn"] .stButton > button {{
-                    background-color: {card_bg} !important;
+                    width: auto !important;
+                    min-width: 200px !important;
+                    background-color: white !important;
                     color: {text_col} !important;
-                    border-radius: 0 0 24px 24px !important;
-                    border: 1px solid rgba(0,0,0,0.08) !important;
-                    border-top: none !important;
-                    font-weight: 800 !important;
-                    height: 54px !important;
-                    box-shadow: 0 10px 15px -10px rgba(0,0,0,0.1) !important;
+                    border-radius: 40px !important;
+                    border: 1px solid {text_col} !important;
+                    font-weight: 700 !important;
+                    height: 44px !important;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
                 }}
                 div[data-testid="stColumn"] .stButton > button:hover {{
-                    background-color: {hover_bg} !important;
+                    background-color: {card_bg} !important;
                     border-color: {text_col} !important;
-                    transform: translateY(2px);
+                    transform: scale(1.02) !important;
                 }}
                 </style>
             """, unsafe_allow_html=True)
 
-            if st.button("View AI Advice →", key="nav_adv_eligible", use_container_width=True):
+            if st.button("View AI Advice →", key="nav_adv_eligible", use_container_width=False):
                 st.switch_page("pages/AI_Advisor.py")
 
     st.markdown("---")
