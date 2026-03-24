@@ -52,6 +52,25 @@ with tab1:
     st.markdown("### 🎯 Your Personalized Recommendations")
 
     if 'last_prediction' not in st.session_state:
+        # ── Fallback: Try loading from Management Console (CSV) ────────────
+        db_path = Path(__file__).parent.parent / 'data/applicant_records.csv'
+        if db_path.exists():
+            try:
+                df_saved = pd.read_csv(db_path)
+                if not df_saved.empty:
+                    last_row = df_saved.iloc[-1]
+                    st.session_state.last_prediction = {
+                        'income': last_row['Income'],
+                        'emis': last_row['EMIs'],
+                        'credit_score': last_row['Credit_Score'],
+                        'emergency_fund': last_row['Emergency_Fund'],
+                        'eligibility': last_row['Status'],
+                        'max_emi': last_row['Max_EMI']
+                    }
+                    st.rerun() # Refresh with the new data
+            except:
+                pass
+
         # ── Empty State Card Refined (Matches Request) ────────────────────
         col_m1, col_m2, col_m3 = st.columns([1, 2, 1])
         with col_m2:

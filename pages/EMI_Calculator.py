@@ -253,9 +253,10 @@ elif st.session_state.calc_step == 4:
                     Based on our AI analysis, your current financial risk is too high. 
                     Consider reducing existing debts or increasing your down payment.
                 </div>
-                <a href="AI_Advisor" target="_self" style="display: inline-block; margin-top: 1rem; color: #be123c; font-weight: 700; text-decoration: none; font-size: 0.8rem; border: 1px solid #be123c; padding: 6px 16px; border-radius: 20px;">View AI Advice →</a>
             </div>
         """, unsafe_allow_html=True)
+        if r2.button("View AI Advice →", key="nav_adv_not_eligible", use_container_width=True):
+            st.switch_page("pages/AI_Advisor.py")
     else:
         # Show Safe EMI for Eligible and High Risk
         r2.markdown(f"""
@@ -266,9 +267,10 @@ elif st.session_state.calc_step == 4:
                 <div style="font-size: 0.7rem; color: #0369a1; opacity: 0.6; margin-top: 0.8rem;">
                     { '⚠️ Exercise caution while borrowing' if label == 'High_Risk' else '✅ Safe to proceed with this amount' }
                 </div>
-                <a href="AI_Advisor" target="_self" style="display: inline-block; margin-top: 1rem; color: #0369a1; font-weight: 700; text-decoration: none; font-size: 0.8rem; border: 1px solid #0369a1; padding: 6px 16px; border-radius: 20px;">View AI Advice →</a>
             </div>
         """, unsafe_allow_html=True)
+        if r2.button("View AI Advice →", key="nav_adv_eligible", use_container_width=True):
+            st.switch_page("pages/AI_Advisor.py")
 
     st.markdown("---")
     st.write("**Confidence Breakdown:**")
@@ -285,7 +287,10 @@ elif st.session_state.calc_step == 4:
             'Income': data['monthly_salary'],
             'Requested': data['requested_amount'],
             'Status': label,
-            'Max_EMI': pred_emi
+            'Max_EMI': pred_emi,
+            'EMIs': data['current_emi_amount'],
+            'Credit_Score': data['credit_score'],
+            'Emergency_Fund': data['emergency_fund']
         }
         df_rec = pd.DataFrame([record])
         if not db_path.exists():
