@@ -214,7 +214,7 @@ elif st.session_state.calc_step == 4:
 
     label = encoders['emi_eligibility'].classes_[pred_class]
     
-    # ── Sync to AI Advisor (Phase 2 State Management) ──────────────────
+    # ── Sync to AI Advisor (State Persistence) ──────────────────
     st.session_state.last_prediction = {
         'income': data['monthly_salary'],
         'emis': data['current_emi_amount'],
@@ -224,7 +224,7 @@ elif st.session_state.calc_step == 4:
         'max_emi': float(pred_emi)
     }
 
-    # UI Results
+    # UI Assessment Report (User Preferred Design)
     st.subheader("📊 Assessment Report")
     r1, r2 = st.columns(2)
     
@@ -244,121 +244,32 @@ elif st.session_state.calc_step == 4:
         </div>
     """, unsafe_allow_html=True)
 
-    # ── Interactive Result Card ──────────────────────────────────────
-    with r2:
-        if label == "Not_Eligible":
-            st.markdown(f"""
-                <div style="background: #fff1f2; {card_base}; min-height: 250px; padding-bottom: 3.5rem;">
-                    <div style="font-size: 0.9rem; font-weight: 700; color: #9f1239; text-transform: uppercase;">Next Steps</div>
-                    <div style="font-size: 1.2rem; font-weight: 700; color: #be123c; margin: 0.8rem 0;">Improve Your Profile</div>
-                    <div style="font-size: 0.85rem; color: #e11d48; line-height: 1.4;">
-                        Based on our AI analysis, your current financial risk is too high. 
-                        Consider reducing existing debts or increasing your down payment.
-                    </div>
+    if label == "Not_Eligible":
+        r2.markdown(f"""
+            <div style="background: #fff1f2; {card_base}">
+                <div style="font-size: 0.9rem; font-weight: 700; color: #9f1239; text-transform: uppercase;">Next Steps</div>
+                <div style="font-size: 1.2rem; font-weight: 700; color: #be123c; margin: 0.8rem 0;">Improve Your Profile</div>
+                <div style="font-size: 0.85rem; color: #e11d48; line-height: 1.4;">
+                    Based on our AI analysis, your current financial risk is too high. 
+                    Consider reducing existing debts or increasing your down payment.
                 </div>
-            """, unsafe_allow_html=True)
-            
-            # Centering Strategy for Column 2
-            st.markdown("""
-                <style>
-                /* Force all elements in the results column to center */
-                div[data-testid="stColumn"]:nth-child(2) [data-testid="stVerticalBlock"] > div {
-                    display: flex !important;
-                    flex-direction: column !important;
-                    align-items: center !important;
-                    text-align: center !important;
-                    width: 100% !important;
-                }
-                
-                /* Target the button container specifically to pull it up */
-                div[data-testid="stColumn"]:nth-child(2) .stButton {
-                    margin-top: -5rem !important;
-                    width: auto !important;
-                }
-                
-                /* Pill Button Styling */
-                div[data-testid="stColumn"]:nth-child(2) .stButton > button {
-                    width: auto !important;
-                    min-width: 220px !important;
-                    padding-left: 2rem !important;
-                    padding-right: 2rem !important;
-                    border-radius: 50px !important;
-                    border: 1.5px solid #be123c !important;
-                    background-color: white !important;
-                    color: #be123c !important;
-                    font-weight: 800 !important;
-                    font-size: 0.95rem !important;
-                    height: 50px !important;
-                    box-shadow: 0 4px 15px rgba(190, 18, 60, 0.15) !important;
-                    transition: all 0.3s ease !important;
-                }
-                div[data-testid="stColumn"]:nth-child(2) .stButton > button:hover {
-                    background-color: #be123c !important;
-                    color: white !important;
-                    transform: translateY(-2px) !important;
-                    box-shadow: 0 8px 20px rgba(190, 18, 60, 0.25) !important;
-                }
-                </style>
-            """, unsafe_allow_html=True)
-            
-            if st.button("View AI Advice →", key="nav_adv_not_eligible", use_container_width=False):
-                st.switch_page("pages/AI_Advisor.py")
-        else:
-            # Show Safe EMI for Eligible and High Risk
-            card_bg = "#f0f9ff" if label == "Eligible" else "#fff7ed" 
-            text_col = "#0369a1" if label == "Eligible" else "#9a3412"
-            
-            st.markdown(f"""
-                <div style="background: {card_bg}; {card_base}; min-height: 250px; padding-bottom: 3.5rem;">
-                    <div style="font-size: 0.9rem; font-weight: 700; color: {text_col}; text-transform: uppercase;">Maximum Safe EMI</div>
-                    <div style="font-size: 3.5rem; font-weight: 900; color: {text_col}; margin: 0.5rem 0;">₹{pred_emi:,.0f}</div>
-                    <div style="font-size: 0.8rem; color: {text_col}; opacity: 0.8;">Recommended monthly capacity</div>
-                    <div style="font-size: 0.7rem; color: {text_col}; opacity: 0.6; margin-top: 0.8rem;">
-                        { '⚠️ Exercise caution while borrowing' if label == 'High_Risk' else '✅ Safe to proceed with this amount' }
-                    </div>
+                <a href="/AI_Advisor" target="_self" style="display: inline-block; margin-top: 1rem; color: #be123c; font-weight: 700; text-decoration: none; font-size: 0.8rem; border: 1px solid #be123c; padding: 6px 16px; border-radius: 20px;">View AI Advice →</a>
+            </div>
+        """, unsafe_allow_html=True)
+    else:
+        # Show Safe EMI for Eligible and High Risk
+        btn_col = "#0369a1" if label == "Eligible" else "#9a3412"
+        r2.markdown(f"""
+            <div style="background: #f0f9ff; {card_base}">
+                <div style="font-size: 0.9rem; font-weight: 700; color: #075985; text-transform: uppercase;">Maximum Safe EMI</div>
+                <div style="font-size: 3.5rem; font-weight: 900; color: #0369a1; margin: 0.5rem 0;">₹{pred_emi:,.0f}</div>
+                <div style="font-size: 0.8rem; color: #0c4a6e;">Recommended monthly capacity</div>
+                <div style="font-size: 0.7rem; color: #0369a1; opacity: 0.6; margin-top: 0.8rem;">
+                    { '⚠️ Exercise caution while borrowing' if label == 'High_Risk' else '✅ Safe to proceed with this amount' }
                 </div>
-            """, unsafe_allow_html=True)
-
-            # Centering Strategy for Column 2 (Eligible Case)
-            st.markdown(f"""
-                <style>
-                div[data-testid="stColumn"]:nth-child(2) [data-testid="stVerticalBlock"] > div {{
-                    display: flex !important;
-                    flex-direction: column !important;
-                    align-items: center !important;
-                    text-align: center !important;
-                    width: 100% !important;
-                }}
-                div[data-testid="stColumn"]:nth-child(2) .stButton {{
-                    margin-top: -5rem !important;
-                    width: auto !important;
-                }}
-                div[data-testid="stColumn"]:nth-child(2) .stButton > button {{
-                    width: auto !important;
-                    min-width: 220px !important;
-                    padding-left: 2rem !important;
-                    padding-right: 2rem !important;
-                    background-color: white !important;
-                    color: {text_col} !important;
-                    border-radius: 50px !important;
-                    border: 1.5px solid {text_col} !important;
-                    font-weight: 800 !important;
-                    font-size: 0.95rem !important;
-                    height: 50px !important;
-                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
-                    transition: all 0.3s ease !important;
-                }}
-                div[data-testid="stColumn"]:nth-child(2) .stButton > button:hover {{
-                    background-color: {text_col} !important;
-                    color: white !important;
-                    transform: translateY(-2px) !important;
-                    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15) !important;
-                }}
-                </style>
-            """, unsafe_allow_html=True)
-
-            if st.button("View AI Advice →", key="nav_adv_eligible", use_container_width=False):
-                st.switch_page("pages/AI_Advisor.py")
+                <a href="/AI_Advisor" target="_self" style="display: inline-block; margin-top: 1rem; color: {btn_col}; font-weight: 700; text-decoration: none; font-size: 0.8rem; border: 1px solid {btn_col}; padding: 6px 16px; border-radius: 20px;">View AI Advice →</a>
+            </div>
+        """, unsafe_allow_html=True)
 
     st.markdown("---")
     st.write("**Confidence Breakdown:**")
